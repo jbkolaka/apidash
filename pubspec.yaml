@@ -93,6 +93,7 @@ dependencies:
   protobuf: ^4.1.0
 
 dependency_overrides:
+  image: 4.5.4
   pdf_widget_wrapper: ^1.0.4
   web: ^1.1.1
   freezed_annotation: ^3.1.0
