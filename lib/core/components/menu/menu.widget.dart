@@ -469,14 +469,18 @@ class _CSubmenuWidgetState extends State<_CSubmenuWidget> {
           }
         },
         onExit: (_) {
-          if (!isDisabled) {
-            // Delay slightly to give time to enter overlay
-            Future.delayed(const Duration(milliseconds: 100), () {
-              if (mounted && !_isHovered) {
-                _hideSubmenu();
-              }
-            });
+          if (isDisabled) {
+            return;
           }
+          // Clear the hover state before scheduling the delayed hide so the
+          // submenu reliably closes once the pointer leaves the entry.
+          setState(() => _isHovered = false);
+          // Delay slightly to give time to enter overlay
+          Future.delayed(const Duration(milliseconds: 100), () {
+            if (mounted && !_isHovered) {
+              _hideSubmenu();
+            }
+          });
         },
         cursor: isDisabled
             ? SystemMouseCursors.forbidden
@@ -509,6 +513,7 @@ class _CSubmenuWidgetState extends State<_CSubmenuWidget> {
                       fontSize: fontSize,
                       color: textColor,
                       fontWeight: FontWeight.w400,
+                      decoration: TextDecoration.none,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

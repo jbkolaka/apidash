@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../icon/index.dart';
+import '../menu/index.dart';
 import '../../theme/variables.dart' hide Theme;
 
 import 'ui_shell_header.props.dart';
@@ -12,9 +12,8 @@ class CUiShellHeader extends StatelessWidget implements PreferredSizeWidget {
   final CUiShellHeaderProps props;
 
   @override
-  Size get preferredSize => Size.fromHeight(
-    props.height ?? CUiShellHeaderStyles.height,
-  );
+  Size get preferredSize =>
+      Size.fromHeight(props.height ?? CUiShellHeaderStyles.height);
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +30,23 @@ class CUiShellHeader extends StatelessWidget implements PreferredSizeWidget {
         child: Row(
           children: [
             if (props.showMenuButton)
-              _HeaderIconButton(
-                label: 'Open navigation menu',
-                icon: CIcons.menu,
-                onPressed: props.onMenuPressed,
-              ),
+              props.menuItems.isEmpty
+                  ? _HeaderIconButton(
+                      label: 'Open navigation menu',
+                      icon: props.menuIcon,
+                      onPressed: props.onMenuPressed,
+                    )
+                  : CMenuAnchor(
+                      props: CMenuProps(items: props.menuItems, minWidth: 240),
+                      builder: (context, openMenu) => _HeaderIconButton(
+                        label: 'Open navigation menu',
+                        icon: props.menuIcon,
+                        onPressed: () {
+                          props.onMenuPressed?.call();
+                          openMenu();
+                        },
+                      ),
+                    ),
             _Brand(props: props),
             if (props.links.isNotEmpty) ...[
               const VerticalDivider(width: 1, thickness: 1),
@@ -44,14 +55,20 @@ class CUiShellHeader extends StatelessWidget implements PreferredSizeWidget {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     children: [
-                      for (final link in props.links)
-                        _HeaderLink(link: link),
+                      for (final link in props.links) _HeaderLink(link: link),
                     ],
                   ),
                 ),
               ),
             ] else
               const Spacer(),
+            if (props.trailing != null)
+              Padding(
+                padding: const EdgeInsets.only(
+                  right: Spacing.v8px05remSpacing03,
+                ),
+                child: props.trailing!,
+              ),
             for (final action in props.actions)
               _HeaderIconButton(
                 label: action.label,
@@ -85,7 +102,7 @@ class _Brand extends StatelessWidget {
             if (props.prefix case final prefix? when prefix.isNotEmpty) ...[
               Text(
                 prefix,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                style: TypeScale.bodyCompact01.copyWith(
                   color: tokens.textSecondary,
                 ),
               ),
@@ -93,10 +110,7 @@ class _Brand extends StatelessWidget {
             ],
             Text(
               props.title,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: tokens.textPrimary,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TypeScale.heading01.copyWith(color: tokens.textPrimary),
             ),
           ],
         ),
@@ -126,7 +140,7 @@ class _HeaderLink extends StatelessWidget {
         ),
         child: Text(
           link.label,
-          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          style: TypeScale.bodyCompact01.copyWith(
             color: link.isCurrent ? tokens.textPrimary : tokens.textSecondary,
             fontWeight: link.isCurrent ? FontWeight.w600 : FontWeight.w400,
           ),

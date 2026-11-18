@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:apidash/core/components/index.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:apidash/widgets/widgets.dart';
 
@@ -28,7 +29,7 @@ void main() {
       await tester.tap(find.text('Show About Dialog'));
       await tester.pump();
 
-      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(find.byType(CModal), findsOneWidget);
 
       expect(find.byType(IntroMessage), findsOneWidget);
 
@@ -37,7 +38,7 @@ void main() {
       await tester.tap(find.text('Close'));
       await tester.pump();
 
-      expect(find.byType(AlertDialog), findsNothing);
+      expect(find.byType(CModal), findsNothing);
     },
   );
 }

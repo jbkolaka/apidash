@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../../shared/index.dart';
+import '../../theme/theme.dart';
 
 import 'text_field.widget.dart';
 
@@ -16,117 +18,73 @@ abstract class CTextfieldStyles {
   static const double descriptionFontSize = 14.0;
   static const String descriptionFontFamily = CFonts.primaryRegular;
 
-  static const Color cursorColor = CColors.gray10;
+  static Color cursorColor(AppThemeTokens tokens) => tokens.textPrimary;
 
-  static final Map<CTextfieldKind, Map<CWidgetState, InputBorder>> border = {
-    CTextfieldKind.primary: {
-      CWidgetState.enabled: UnderlineInputBorder(
+  static InputBorder border(
+    AppThemeTokens tokens,
+    CTextfieldKind kind,
+    CWidgetState state,
+  ) {
+    if (state == CWidgetState.disabled) {
+      return const UnderlineInputBorder(borderSide: BorderSide.none);
+    }
+    if (state == CWidgetState.focused) {
+      final color = switch (kind) {
+        CTextfieldKind.success => tokens.supportSuccess,
+        CTextfieldKind.warning => tokens.supportWarning,
+        CTextfieldKind.error => tokens.supportError,
+        CTextfieldKind.primary => tokens.focus,
+      };
+      return OutlineInputBorder(
         borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: CColors.gray60, width: 1),
-      ),
-      CWidgetState.focused: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: CColors.white0, width: 2),
-      ),
-      CWidgetState.disabled: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide.none,
-      ),
-    },
-    CTextfieldKind.success: {
-      CWidgetState.enabled: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: CColors.gray60, width: 1),
-      ),
-      CWidgetState.focused: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: CColors.green40, width: 2),
-      ),
-      CWidgetState.disabled: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide.none,
-      ),
-    },
-    CTextfieldKind.warning: {
-      CWidgetState.enabled: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: CColors.gray60, width: 1),
-      ),
-      CWidgetState.focused: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: CColors.yellow20, width: 2),
-      ),
-      CWidgetState.disabled: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide.none,
-      ),
-    },
-    CTextfieldKind.error: {
-      CWidgetState.enabled: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: CColors.gray60, width: 1),
-      ),
-      CWidgetState.focused: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide(color: CColors.red50, width: 2),
-      ),
-      CWidgetState.disabled: UnderlineInputBorder(
-        borderRadius: BorderRadius.circular(0),
-        borderSide: BorderSide.none,
-      ),
-    },
-  };
+        borderSide: BorderSide(color: color, width: 2),
+      );
+    }
+    return UnderlineInputBorder(
+      borderRadius: BorderRadius.circular(0),
+      borderSide: BorderSide(color: tokens.borderStrong01, width: 1),
+    );
+  }
 
-  static final Map<CTextfieldKind, Map<CWidgetState, Color>> descriptionColor = {
-    CTextfieldKind.primary: {
-      CWidgetState.enabled: CColors.gray30,
-      CWidgetState.focused: CColors.gray30,
-      CWidgetState.disabled: CColors.gray70,
-    },
-    CTextfieldKind.success: {
-      CWidgetState.enabled: CColors.gray30,
-      CWidgetState.focused: CColors.green30,
-      CWidgetState.disabled: CColors.gray70,
-    },
-    CTextfieldKind.warning: {
-      CWidgetState.enabled: CColors.gray30,
-      CWidgetState.focused: CColors.yellow30,
-      CWidgetState.disabled: CColors.gray70,
-    },
-    CTextfieldKind.error: {
-      CWidgetState.enabled: CColors.gray30,
-      CWidgetState.focused: CColors.red40,
-      CWidgetState.disabled: CColors.gray70,
-    },
-  };
+  static Color descriptionColor(
+    AppThemeTokens tokens,
+    CTextfieldKind kind,
+    CWidgetState state,
+  ) {
+    if (state == CWidgetState.disabled) return tokens.textDisabled;
+    return switch (kind) {
+      CTextfieldKind.success => tokens.supportSuccess,
+      CTextfieldKind.warning => tokens.supportWarning,
+      CTextfieldKind.error => tokens.supportError,
+      CTextfieldKind.primary => tokens.textSecondary,
+    };
+  }
 
-  static final Map<CWidgetState, Color> textColor = {
-    CWidgetState.enabled: CColors.gray10,
-    CWidgetState.focused: CColors.gray10,
-    CWidgetState.disabled: CColors.gray70,
-  };
+  static Color textColor(AppThemeTokens tokens, CWidgetState state) {
+    return state == CWidgetState.disabled
+        ? tokens.textDisabled
+        : tokens.textPrimary;
+  }
 
-  static final Map<CWidgetState, Color> labelColor = {
-    CWidgetState.enabled: CColors.gray30,
-    CWidgetState.focused: CColors.gray30,
-    CWidgetState.disabled: CColors.gray70,
-  };
+  static Color labelColor(AppThemeTokens tokens, CWidgetState state) {
+    return state == CWidgetState.disabled
+        ? tokens.textDisabled
+        : tokens.textSecondary;
+  }
 
-  static final Map<CWidgetState, Color> hintColor = {
-    CWidgetState.enabled: CColors.gray60,
-    CWidgetState.focused: CColors.gray60,
-    CWidgetState.disabled: CColors.gray70,
-  };
+  static Color hintColor(AppThemeTokens tokens, CWidgetState state) {
+    return state == CWidgetState.disabled
+        ? tokens.textDisabled
+        : tokens.textPlaceholder;
+  }
 
-  static final Map<CWidgetState, Color> backgroundColor = {
-    CWidgetState.enabled: CColors.gray90,
-    CWidgetState.focused: CColors.gray90,
-    CWidgetState.disabled: CColors.gray90,
-  };
+  static Color backgroundColor(AppThemeTokens tokens, CWidgetState state) {
+    return state == CWidgetState.disabled ? tokens.field02 : tokens.field01;
+  }
 
-  static final Map<CWidgetState, Color> iconColor = {
-    CWidgetState.enabled: CColors.gray10,
-    CWidgetState.focused: CColors.gray10,
-    CWidgetState.disabled: CColors.gray70,
-  };
+  static Color iconColor(AppThemeTokens tokens, CWidgetState state) {
+    return state == CWidgetState.disabled
+        ? tokens.textDisabled
+        : tokens.iconPrimary;
+  }
 }

@@ -277,6 +277,9 @@ Hive boxes:
 
 ### UI and Design
 
+- Core theming lives in `lib/core/theme/`. `lib/app.dart` is the only app-level `MaterialApp` theme owner: `AppTheme.whiteTheme` for light and `AppTheme.gray100Theme` for dark, exposed through `AppThemeScope`.
+- Read tokens with `context.tokens`; do not add hardcoded colors or a parallel `ThemeData` for app surfaces.
+- Carbon-style components live in `lib/core/components/` and resolve colors from `AppThemeTokens`. Prefer them over raw Material widgets when an equivalent exists (`CButton`, `CTextField`, `CModal`/`showCModal`).
 - Desktop uses `Dashboard` with a navigation rail and `IndexedStack`.
 - Mobile uses `MobileDashboard`, `PageBranch`, bottom navigation, and mobile-specific request/response pages.
 - `HomePage` switches between `DashboardSplitView` and mobile `RequestResponsePage` using `context.isMediumWindow`.

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../shared/index.dart';
+import '../../theme/theme.dart';
 import '../text/index.dart';
 import '../enable/index.dart';
 import '../inherited_styles/index.dart';
@@ -162,7 +163,8 @@ class CTextFieldState extends State<CTextField> {
       return widget.isRequired ? false : true;
     }
 
-    if (_validationResult == null || _validationResult?.kind == CValidationKind.success) {
+    if (_validationResult == null ||
+        _validationResult?.kind == CValidationKind.success) {
       return true;
     } else {
       return false;
@@ -183,6 +185,7 @@ class CTextFieldState extends State<CTextField> {
   @override
   Widget build(BuildContext context) {
     final isEnabled = _isEnabled;
+    final tokens = context.tokens;
 
     _setStateVariables();
 
@@ -199,10 +202,10 @@ class CTextFieldState extends State<CTextField> {
               style: TextStyle(
                 fontSize: _Styles.labelFontSize,
                 fontFamily: _Styles.labelFontFamily,
-                color: _Styles.labelColor[_state],
+                color: _Styles.labelColor(tokens, _state),
               ),
             ),
-            const SizedBox(height: 8)
+            const SizedBox(height: 8),
           ],
           SizedBox(
             height: 40,
@@ -233,7 +236,7 @@ class CTextFieldState extends State<CTextField> {
               onEditingComplete: widget.onEditingComplete,
               onSubmitted: widget.onSubmitted,
               inputFormatters: widget.inputFormatters,
-              cursorColor: _Styles.cursorColor,
+              cursorColor: _Styles.cursorColor(tokens),
               keyboardAppearance: widget.keyboardAppearance,
               onTap: widget.onTap,
               scrollController: widget.scrollController,
@@ -242,7 +245,7 @@ class CTextFieldState extends State<CTextField> {
               style: TextStyle(
                 fontSize: _Styles.textFontSize,
                 fontFamily: _Styles.textFontFamily,
-                color: _Styles.textColor[_state],
+                color: _Styles.textColor(tokens, _state),
               ),
               decoration: InputDecoration(
                 filled: true,
@@ -251,46 +254,62 @@ class CTextFieldState extends State<CTextField> {
                   top: isEnabled && _isFocused ? 8 : 8,
                   bottom: isEnabled && _isFocused ? 12.5 : 15,
                 ),
-                fillColor: inheritedBackgroundColor ?? _Styles.backgroundColor[_state],
+                fillColor:
+                    inheritedBackgroundColor ??
+                    _Styles.backgroundColor(tokens, _state),
                 hintText: widget.hint,
                 hintStyle: TextStyle(
                   fontSize: _Styles.hintFontSize,
                   fontFamily: _Styles.hintFontFamily,
-                  color: _Styles.hintColor[_state],
+                  color: _Styles.hintColor(tokens, _state),
                 ),
-                prefixIconConstraints: BoxConstraints(minWidth: 46, maxWidth: 46), // 44 + 2 (width of border)
-                suffixIconConstraints: BoxConstraints(minWidth: 46, maxWidth: 46), // 44 + 2 (width of border)
+                prefixIconConstraints: BoxConstraints(
+                  minWidth: 46,
+                  maxWidth: 46,
+                ), // 44 + 2 (width of border)
+                suffixIconConstraints: BoxConstraints(
+                  minWidth: 46,
+                  maxWidth: 46,
+                ), // 44 + 2 (width of border)
                 prefixIcon: (() {
                   if (widget.prefixIcon == null) return null;
 
                   return IconTheme(
-                    data: IconThemeData(color: _Styles.iconColor[_state]!),
+                    data: IconThemeData(
+                      color: _Styles.iconColor(tokens, _state),
+                    ),
                     child: widget.prefixIcon!,
                   );
                 })(),
                 suffixIcon: (() {
-                  if (widget.prefixIcon == null && _validationResult?.icon == null) return null;
+                  if (widget.prefixIcon == null &&
+                      _validationResult?.icon == null)
+                    return null;
 
                   return IconTheme(
-                    data: IconThemeData(color: _Styles.iconColor[_state]!),
+                    data: IconThemeData(
+                      color: _Styles.iconColor(tokens, _state),
+                    ),
                     child: _validationResult?.icon ?? widget.suffixIcon!,
                   );
                 })(),
-                border: _Styles.border[_kind]![_state],
-                enabledBorder: _Styles.border[_kind]![_state],
-                focusedBorder: _Styles.border[_kind]![_state],
-                disabledBorder: _Styles.border[_kind]![_state],
+                border: _Styles.border(tokens, _kind, _state),
+                enabledBorder: _Styles.border(tokens, _kind, _state),
+                focusedBorder: _Styles.border(tokens, _kind, _state),
+                disabledBorder: _Styles.border(tokens, _kind, _state),
               ),
             ),
           ),
           if (widget.description != null) ...[
             const SizedBox(height: 8),
             CText(
-              data: _validationResult == null ? widget.description! : _validationResult!.message,
+              data: _validationResult == null
+                  ? widget.description!
+                  : _validationResult!.message,
               style: TextStyle(
                 fontSize: _Styles.descriptionFontSize,
                 fontFamily: _Styles.descriptionFontFamily,
-                color: _Styles.descriptionColor[_kind]![_state],
+                color: _Styles.descriptionColor(tokens, _kind, _state),
               ),
             ),
           ],

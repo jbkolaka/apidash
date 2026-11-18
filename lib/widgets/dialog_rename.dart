@@ -1,21 +1,24 @@
-import 'package:apidash_design_system/apidash_design_system.dart';
 import 'package:flutter/material.dart';
+import 'package:apidash/core/components/index.dart';
+import 'package:apidash/core/theme/theme.dart';
 
-showRenameDialog(
+void showRenameDialog(
   BuildContext context,
   String dialogTitle,
   String? name,
   Function(String) onRename,
 ) {
   showDialog(
-      context: context,
-      builder: (context) {
-        return RenameDialogContent(
-          dialogTitle: dialogTitle,
-          onRename: onRename,
-          name: name,
-        );
-      });
+    context: context,
+    barrierColor: context.tokens.overlay,
+    builder: (context) {
+      return RenameDialogContent(
+        dialogTitle: dialogTitle,
+        onRename: onRename,
+        name: name,
+      );
+    },
+  );
 }
 
 class RenameDialogContent extends StatefulWidget {
@@ -41,8 +44,10 @@ class _RenameDialogContentState extends State<RenameDialogContent> {
   void initState() {
     super.initState();
     controller = TextEditingController(text: widget.name ?? "");
-    controller.selection =
-        TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+    controller.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: controller.text.length,
+    );
   }
 
   @override
@@ -53,38 +58,38 @@ class _RenameDialogContentState extends State<RenameDialogContent> {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      icon: const Icon(Icons.edit_rounded),
-      iconColor: Theme.of(context).colorScheme.primary,
-      title: Text(widget.dialogTitle),
-      titleTextStyle: Theme.of(context).textTheme.titleLarge,
-      content: Container(
-        padding: kPt20,
-        width: 300,
-        child: TextField(
-          autofocus: true,
-          controller: controller,
-          decoration: const InputDecoration(
-              hintText: "Enter new name",
-              border: OutlineInputBorder(
-                borderRadius: kBorderRadius12,
-              )),
+    return CModal(
+      props: CModalProps(
+        title: widget.dialogTitle,
+        body: SizedBox(
+          width: 300,
+          child: CTextField(
+            autofocus: true,
+            controller: controller,
+            hint: "Enter new name",
+          ),
         ),
-      ),
-      actions: <Widget>[
-        TextButton(
+        actions: <CModalAction>[
+          CModalAction(
+            label: 'Cancel',
+            kind: CModalActionKind.secondary,
+            dismissOnPressed: false,
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text('Cancel')),
-        TextButton(
+          ),
+          CModalAction(
+            label: 'Ok',
+            kind: CModalActionKind.primary,
+            dismissOnPressed: false,
             onPressed: () {
               final val = controller.text.trim();
               widget.onRename(val);
               Navigator.pop(context);
             },
-            child: const Text('Ok')),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:apidash/consts.dart';
+import 'package:apidash/core/components/index.dart';
 import 'package:apidash_design_system/apidash_design_system.dart';
 import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
@@ -6,11 +7,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:path/path.dart' as p;
 
 class WorkspaceSelector extends HookWidget {
-  const WorkspaceSelector({
-    super.key,
-    required this.onContinue,
-    this.onCancel,
-  });
+  const WorkspaceSelector({super.key, required this.onContinue, this.onCancel});
 
   final Future<void> Function(String)? onContinue;
   final Future<void> Function()? onCancel;
@@ -27,18 +24,13 @@ class WorkspaceSelector extends HookWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                kMsgSelectWorkspace,
-                style: kTextStyleButton,
-              ),
+              const Text(kMsgSelectWorkspace, style: kTextStyleButton),
               kVSpacer20,
               Row(
                 children: [
                   Text(
                     "CHOOSE DIRECTORY",
-                    style: kCodeStyle.copyWith(
-                      fontSize: 12,
-                    ),
+                    style: kCodeStyle.copyWith(fontSize: 12),
                   ),
                 ],
               ),
@@ -56,14 +48,16 @@ class WorkspaceSelector extends HookWidget {
                     ),
                   ),
                   kHSpacer10,
-                  FilledButton.tonalIcon(
-                    onPressed: () async {
+                  CButton(
+                    onTap: () async {
                       selectedDirectory.value = await getDirectoryPath();
                       selectedDirectoryTextController.text =
                           selectedDirectory.value ?? "";
                     },
-                    label: const Text(kLabelSelect),
+                    label: kLabelSelect,
                     icon: const Icon(Icons.folder_rounded),
+                    kind: CButtonKind.tertiary,
+                    size: CButtonSize.md,
                   ),
                 ],
               ),
@@ -73,9 +67,7 @@ class WorkspaceSelector extends HookWidget {
                   Expanded(
                     child: Text(
                       "WORKSPACE NAME [OPTIONAL]\n(FOLDER WILL BE CREATED IN THE SELECTED DIRECTORY)",
-                      style: kCodeStyle.copyWith(
-                        fontSize: 12,
-                      ),
+                      style: kCodeStyle.copyWith(fontSize: 12),
                     ),
                   ),
                 ],
@@ -89,38 +81,40 @@ class WorkspaceSelector extends HookWidget {
                 isDense: true,
               ),
               kVSpacer40,
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 10,
+                runSpacing: 8,
                 children: [
-                  FilledButton(
-                    onPressed: selectedDirectory.value == null
-                        ? null
+                  CButton(
+                    onTap: selectedDirectory.value == null
+                        ? () {}
                         : () async {
                             String finalPath = selectedDirectory.value!;
                             if (workspaceName.value != null &&
                                 workspaceName.value!.trim().isNotEmpty) {
-                              finalPath =
-                                  p.join(finalPath, workspaceName.value);
+                              finalPath = p.join(
+                                finalPath,
+                                workspaceName.value,
+                              );
                             }
                             await onContinue?.call(finalPath);
                           },
-                    child: const Text(kLabelContinue),
+                    label: kLabelContinue,
+                    enable: selectedDirectory.value != null,
+                    kind: CButtonKind.primary,
+                    size: CButtonSize.md,
                   ),
-                  kHSpacer10,
-                  FilledButton(
-                    onPressed: onCancel,
-                    style: FilledButton.styleFrom(
-                        backgroundColor:
-                            Theme.of(context).brightness == Brightness.dark
-                                ? kColorDarkDanger
-                                : kColorLightDanger,
-                        surfaceTintColor: kColorRed,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary),
-                    child: const Text(kLabelCancel),
-                  )
+                  CButton(
+                    onTap: () => onCancel?.call(),
+                    label: kLabelCancel,
+                    enable: onCancel != null,
+                    kind: CButtonKind.danger,
+                    size: CButtonSize.md,
+                  ),
                 ],
-              )
+              ),
             ],
           ),
         ),

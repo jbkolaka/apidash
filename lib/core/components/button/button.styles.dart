@@ -1,120 +1,97 @@
 import 'package:flutter/widgets.dart';
+
+import '../../theme/theme.dart';
 import '../../shared/index.dart';
 
 import 'button.widget.dart';
 
 abstract class CButtonStyles {
-  static const Map<CButtonKind, Map<CWidgetState, Color>> contentColor = {
-    CButtonKind.primary: {
-      CWidgetState.enabled: CColors.white0,
-      CWidgetState.focused: CColors.white0,
-      CWidgetState.disabled: CColors.gray60,
-    },
-    CButtonKind.secondary: {
-      CWidgetState.enabled: CColors.white0,
-      CWidgetState.focused: CColors.white0,
-      CWidgetState.disabled: CColors.gray60,
-    },
-    CButtonKind.danger: {
-      CWidgetState.enabled: CColors.white0,
-      CWidgetState.focused: CColors.white0,
-      CWidgetState.disabled: CColors.gray60,
-    },
-    CButtonKind.tertiary: {
-      CWidgetState.enabled: CColors.white0,
-      CWidgetState.focused: CColors.gray100,
-      CWidgetState.disabled: CColors.gray70,
-    },
-    CButtonKind.ghost: {
-      CWidgetState.enabled: CColors.blue40,
-      CWidgetState.focused: CColors.blue40,
-      CWidgetState.disabled: CColors.gray70,
-    },
-  };
+  /// Foreground color for the given [kind] and [state].
+  static Color contentColor(
+    AppThemeTokens tokens,
+    CButtonKind kind,
+    CWidgetState state,
+  ) {
+    if (state == CWidgetState.disabled) {
+      return kind == CButtonKind.ghost || kind == CButtonKind.tertiary
+          ? tokens.textDisabled
+          : tokens.textOnColorDisabled;
+    }
+    switch (kind) {
+      case CButtonKind.primary:
+      case CButtonKind.secondary:
+      case CButtonKind.danger:
+        return tokens.textOnColor;
+      case CButtonKind.tertiary:
+        return tokens.textInverse;
+      case CButtonKind.ghost:
+        return tokens.linkPrimary;
+    }
+  }
 
-  static const Map<CButtonKind, Map<CWidgetState, Color>> backgroundColor = {
-    CButtonKind.primary: {
-      CWidgetState.enabled: CColors.blue60,
-      CWidgetState.focused: CColors.blue70,
-      CWidgetState.disabled: CColors.gray70,
-    },
-    CButtonKind.secondary: {
-      CWidgetState.enabled: CColors.gray60,
-      CWidgetState.focused: CColors.gray70,
-      CWidgetState.disabled: CColors.gray70,
-    },
-    CButtonKind.danger: {
-      CWidgetState.enabled: CColors.red60,
-      CWidgetState.focused: CColors.red70,
-      CWidgetState.disabled: CColors.gray70,
-    },
-    CButtonKind.tertiary: {
-      CWidgetState.enabled: CColors.gray100,
-      CWidgetState.focused: CColors.gray10,
-      CWidgetState.disabled: CColors.gray100,
-    },
-    CButtonKind.ghost: {
-      CWidgetState.enabled: CColors.transparent,
-      CWidgetState.focused: CColors.gray80,
-      CWidgetState.disabled: CColors.gray100,
-    },
-  };
+  /// Background color for the given [kind] and [state].
+  static Color backgroundColor(
+    AppThemeTokens tokens,
+    CButtonKind kind,
+    CWidgetState state,
+  ) {
+    final focused = state == CWidgetState.focused;
+    final disabled = state == CWidgetState.disabled;
+    switch (kind) {
+      case CButtonKind.primary:
+        if (disabled) return tokens.buttonDisabled;
+        return focused ? tokens.buttonPrimaryActive : tokens.buttonPrimary;
+      case CButtonKind.secondary:
+        if (disabled) return tokens.buttonDisabled;
+        return focused ? tokens.buttonSecondaryActive : tokens.buttonSecondary;
+      case CButtonKind.danger:
+        if (disabled) return tokens.buttonDisabled;
+        return focused ? tokens.buttonDangerActive : tokens.buttonDangerPrimary;
+      case CButtonKind.tertiary:
+        if (disabled) return tokens.buttonDisabled;
+        return focused
+            ? tokens.backgroundInverseHover
+            : tokens.backgroundInverse;
+      case CButtonKind.ghost:
+        if (disabled) return CColors.transparent;
+        return focused ? tokens.layerHover01 : CColors.transparent;
+    }
+  }
 
-  static final Map<CButtonKind, Map<CWidgetState, Border>> firstBorder = {
-    CButtonKind.primary: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.gray100, width: 4),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-    CButtonKind.secondary: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.gray100, width: 4),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-    CButtonKind.danger: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.gray100, width: 4),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-    CButtonKind.tertiary: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.gray100, width: 4),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-    CButtonKind.ghost: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-  };
+  /// Inner focus ring.
+  static Border firstBorder(
+    AppThemeTokens tokens,
+    CButtonKind kind,
+    CWidgetState state,
+  ) {
+    if (state != CWidgetState.focused || kind == CButtonKind.ghost) {
+      return Border.all(color: CColors.transparent, width: 0);
+    }
+    return Border.all(color: tokens.focusInset, width: 2);
+  }
 
-  static final Map<CButtonKind, Map<CWidgetState, Border>> secondBorder = {
-    CButtonKind.primary: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.white0, width: 2),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-    CButtonKind.secondary: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.white0, width: 2),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-    CButtonKind.danger: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.white0, width: 2),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-    CButtonKind.tertiary: {
-      CWidgetState.enabled: Border.all(color: CColors.white0, width: 1),
-      CWidgetState.focused: Border.all(color: CColors.white0, width: 2),
-      CWidgetState.disabled: Border.all(color: CColors.gray70, width: 1),
-    },
-    CButtonKind.ghost: {
-      CWidgetState.enabled: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.focused: Border.all(color: CColors.transparent, width: 0),
-      CWidgetState.disabled: Border.all(color: CColors.transparent, width: 0),
-    },
-  };
+  /// Outer focus ring / resting border.
+  static Border secondBorder(
+    AppThemeTokens tokens,
+    CButtonKind kind,
+    CWidgetState state,
+  ) {
+    if (state == CWidgetState.focused && kind != CButtonKind.ghost) {
+      return Border.all(color: tokens.focus, width: 2);
+    }
+    if (state == CWidgetState.disabled) {
+      return Border.all(color: CColors.transparent, width: 0);
+    }
+    switch (kind) {
+      case CButtonKind.tertiary:
+        return Border.all(color: tokens.borderSubtle01, width: 1);
+      case CButtonKind.primary:
+      case CButtonKind.secondary:
+      case CButtonKind.danger:
+      case CButtonKind.ghost:
+        return Border.all(color: CColors.transparent, width: 0);
+    }
+  }
 
   static final Map<String, dynamic> backgroundColorAnimation = {
     'duration': Duration(milliseconds: 65),

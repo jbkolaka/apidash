@@ -1,8 +1,8 @@
 import 'package:apidash/consts.dart';
-import 'package:apidash_design_system/apidash_design_system.dart';
+import 'package:apidash/core/components/index.dart';
 import 'package:flutter/material.dart';
 
-showOkCancelDialog(
+void showOkCancelDialog(
   BuildContext context, {
   String? dialogTitle,
   String? content,
@@ -11,37 +11,23 @@ showOkCancelDialog(
   String? buttonLabelCancel,
   VoidCallback? onClickCancel,
 }) {
-  showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(dialogTitle ?? ""),
-          titleTextStyle: Theme.of(context).textTheme.titleLarge,
-          content: Container(
-            padding: kPt20,
-            width: 300,
-            child: Text(content ?? ""),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                onClickCancel?.call();
-                if (context.mounted) {
-                  Navigator.pop(context);
-                }
-              },
-              child: Text(buttonLabelCancel ?? kLabelCancel),
-            ),
-            TextButton(
-              onPressed: () {
-                onClickOk?.call();
-                if (context.mounted) {
-                  Navigator.pop(context);
-                }
-              },
-              child: Text(buttonLabelOk ?? kLabelOk),
-            ),
-          ],
-        );
-      });
+  showCModal(
+    context,
+    CModalProps(
+      title: dialogTitle ?? "",
+      body: SizedBox(width: 300, child: Text(content ?? "")),
+      actions: <CModalAction>[
+        CModalAction(
+          label: buttonLabelCancel ?? kLabelCancel,
+          kind: CModalActionKind.secondary,
+          onPressed: onClickCancel,
+        ),
+        CModalAction(
+          label: buttonLabelOk ?? kLabelOk,
+          kind: CModalActionKind.primary,
+          onPressed: onClickOk,
+        ),
+      ],
+    ),
+  );
 }

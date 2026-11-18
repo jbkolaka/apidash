@@ -138,6 +138,15 @@ Models are defined using **Freezed** for immutability and **json_serializable** 
 
 The core HTTP request/response models (`HttpRequestModel`, `HttpResponseModel`) are defined in the `apidash_core` package.
 
+## Theming and UI Components
+
+- `lib/core/theme/` is the single source of design tokens. `AppThemeTokens` exposes semantic colors (background, layer, text, border, button, support, field, focus) for each `AppThemeMode`; `lib/core/theme/variables.dart` re-exports the generated token modules.
+- `lib/app.dart` owns the only app-level `MaterialApp` theme: `AppTheme.whiteTheme` for light mode and `AppTheme.gray100Theme` for dark mode, driven by `settingsProvider.isDark` and exposed through `AppThemeScope`.
+- Widgets read tokens with `context.tokens` (`lib/core/theme/app_theme.dart`) instead of hardcoded `Color` values. Palette constants are only for surfaces that intentionally do not follow the theme, such as code syntax highlighting.
+- Carbon-style components live in `lib/core/components/` (`CButton`, `CTextField`, `CModal`, and related widgets). Their styles resolve colors through `AppThemeTokens`, so the same widget renders correctly in White and Gray 100.
+- The `CUiShellHeader` supports an optional Carbon menu (`menuItems`, `menuIcon`) plus a trailing widget slot; `CTypography` (in `lib/core/shared/styles/variables/type.style.dart`) provides the Carbon type scale and is exported with the spacing variables.
+- Shared dialogs use `showCModal` with `CModalAction`; new app chrome should prefer core components over raw Material equivalents when an equivalent exists.
+
 ## Persistent Storage (Hive)
 
 API Dash uses Hive, a lightweight NoSQL database optimized for Flutter.

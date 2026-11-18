@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:apidash/core/components/index.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:apidash/consts.dart';
 import 'package:apidash/widgets/dialog_history_retention.dart';
@@ -29,7 +30,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Manage History'), findsOneWidget);
-      expect(find.byIcon(Icons.manage_history_rounded), findsOneWidget);
 
       expect(
         find.byType(RadioListTile<HistoryRetentionPeriod>),
@@ -99,7 +99,7 @@ void main() {
         await tester.tap(find.text('Cancel'));
         await tester.pumpAndSettle();
 
-        expect(find.byType(AlertDialog), findsNothing);
+        expect(find.byType(CModal), findsNothing);
         expect(selectedPeriod, HistoryRetentionPeriod.oneWeek);
       },
     );
@@ -139,7 +139,7 @@ void main() {
         await tester.tap(find.text('Confirm'));
         await tester.pumpAndSettle();
 
-        expect(find.byType(AlertDialog), findsNothing);
+        expect(find.byType(CModal), findsNothing);
         expect(selectedPeriod, newPeriod);
       },
     );

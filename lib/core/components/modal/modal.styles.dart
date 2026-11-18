@@ -39,7 +39,7 @@ abstract final class CModalStyles {
   static Color actionForeground(AppThemeTokens tokens, CModalActionKind kind) =>
       switch (kind) {
         CModalActionKind.primary => tokens.textOnColor,
-        CModalActionKind.secondary => tokens.textPrimary,
+        CModalActionKind.secondary => tokens.textOnColor,
         CModalActionKind.danger => tokens.textOnColor,
       };
 

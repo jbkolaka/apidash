@@ -1,10 +1,10 @@
 import 'package:apidash/screens/home_page/editor_pane/editor_default.dart';
 import 'package:apidash/providers/providers.dart';
+import 'package:apidash/core/components/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:apidash/models/models.dart';
 import 'test_utils.dart';
 
 void main() {
@@ -25,11 +25,11 @@ void main() {
       find.text('Create your first API request to begin testing'),
       findsOneWidget,
     );
-    expect(find.byType(ElevatedButton), findsOneWidget);
+    expect(find.byType(CButton), findsOneWidget);
     expect(find.text('Quick Tips'), findsOneWidget);
 
     // Tap + New
-    await tester.tap(find.byType(ElevatedButton));
+    await tester.tap(find.byType(CButton));
     await tester.pumpAndSettle();
   });
 }

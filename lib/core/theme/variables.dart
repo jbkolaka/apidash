@@ -10,6 +10,7 @@ export '../shared/styles/variables/theme_gray10.style.dart';
 export '../shared/styles/variables/theme_gray90.style.dart';
 export '../shared/styles/variables/theme_gray100.style.dart';
 export '../shared/styles/variables/spacing.style.dart';
+export '../shared/styles/variables/type.style.dart';
 export '../shared/styles/variables/breakpoints.style.dart';
 export '../shared/styles/variables/grid.style.dart';
 export '../shared/styles/variables/layer.style.dart';

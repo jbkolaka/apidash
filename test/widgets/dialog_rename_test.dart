@@ -29,7 +29,6 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Rename Item'), findsOneWidget);
-      expect(find.byIcon(Icons.edit_rounded), findsOneWidget);
 
       expect(find.byType(TextField), findsOneWidget);
       expect(find.text('Old Name'), findsOneWidget);

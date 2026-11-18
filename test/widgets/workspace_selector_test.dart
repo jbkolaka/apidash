@@ -1,3 +1,4 @@
+import 'package:apidash/core/components/index.dart';
 import 'package:apidash/widgets/workspace_selector.dart';
 import 'package:apidash/consts.dart';
 import 'package:apidash_design_system/apidash_design_system.dart';
@@ -26,13 +27,13 @@ void main() {
     expect(find.text(kLabelSelect), findsOneWidget);
 
     // Continue should be disabled initially
-    final continueButton = tester.widget<FilledButton>(
-      find.widgetWithText(FilledButton, kLabelContinue).first,
+    final continueButton = tester.widget<CButton>(
+      find.widgetWithText(CButton, kLabelContinue).first,
     );
-    expect(continueButton.onPressed, isNull);
+    expect(continueButton.props.enable, isFalse);
 
     // Cancel should work
-    await tester.tap(find.widgetWithText(FilledButton, kLabelCancel).first);
+    await tester.tap(find.widgetWithText(CButton, kLabelCancel).first);
     await tester.pumpAndSettle();
 
     expect(cancelCalled, isTrue);
