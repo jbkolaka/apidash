@@ -39,6 +39,11 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.lock,
       description: 'Private API network',
     ),
+    CUiShellNavItem(
+      label: 'Settings',
+      icon: Icons.settings,
+      description: 'Landing page',
+    ),
   ];
 
   @override

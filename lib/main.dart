@@ -1,11 +1,9 @@
-import 'package:apidash/features/home/screen/home.dart';
-import 'package:apidash/screens/home_page/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_portal/flutter_portal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/theme.dart';
-
+import 'screens/home/home_page.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +23,7 @@ class ApiDashApp extends StatelessWidget {
         theme: AppTheme.whiteTheme,
         darkTheme: AppTheme.gray100Theme,
         themeMode: ThemeMode.system,
-        home: HomePage(),
+        home: const HomePage(),
       ),
     );
   }
