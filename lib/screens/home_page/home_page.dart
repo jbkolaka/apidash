@@ -1,67 +1,52 @@
 import 'package:flutter/material.dart';
 
 import '../../core/carbon.dart';
+import '../settings_page.dart';
+import '../../features/home/widgets/private_api.dart';
+import '../../features/home/widgets/public_api.dart';
+import '../../features/home/widgets/work_space_body.dart';
 
 /// Fresh landing page for the rebuilt app.
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
-  List<CMenuEntry> get _navMenuItems => [
-    CMenuItem(
-      label: 'Home',
-      icon: const Icon(CIcons.home, size: 12),
-      onTap: () {},
-    ),
-    CSubmenu(
-      label: 'Workspace',
-      icon: const Icon(CIcons.workspace, size: 12),
-      items: [
-        CMenuItem(
-          label: 'Default workspace',
-          icon: const Icon(CIcons.folder, size: 12),
-          onTap: () {},
-        ),
-        CMenuItem(
-          label: 'New workspace',
-          icon: const Icon(CIcons.add, size: 12),
-          onTap: () {},
-        ),
-      ],
-    ),
-    CMenuItem(
-      label: 'Application inventory',
-      icon: const Icon(CIcons.application, size: 12),
-      onTap: () {},
-    ),
-    const CMenuDivider(),
-    CMenuItem(
-      label: 'Public API network',
-      icon: const Icon(CIcons.network3, size: 12),
-      onTap: () {},
-    ),
-    CMenuItem(
-      label: 'Private API network',
-      icon: const Icon(CIcons.network4, size: 12),
-      onTap: () {},
-    ),
-  ];
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
 
-  List<CMenuEntry> get _workspaceMenuItems => [
-    CMenuItem(
-      label: 'Default workspace',
-      icon: const Icon(CIcons.folder, size: 12),
-      onTap: () {},
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  List<CUiShellNavItem> get _shellItems => [
+    CUiShellNavItem(
+      label: 'Home',
+      icon: Icons.home,
+      description: 'Landing page',
     ),
-    CMenuItem(
-      label: 'New workspace',
-      icon: const Icon(CIcons.add, size: 12),
-      onTap: () {},
+    CUiShellNavItem(
+      label: 'Workspace',
+      icon: Icons.apartment,
+      description: 'Workspace landing',
     ),
-    CMenuItem(
-      label: 'Delete workspace',
-      kind: CMenuItemKind.danger,
-      icon: const Icon(Icons.delete_outline, size: 12),
-      onTap: () {},
+    CUiShellNavItem(
+      label: 'Application inventory',
+      icon: Icons.apps,
+      description: 'Application inventory',
+    ),
+    CUiShellNavItem(
+      label: 'Public API network',
+      icon: Icons.public,
+      description: 'Public API network',
+    ),
+    CUiShellNavItem(
+      label: 'Private API network',
+      icon: Icons.lock,
+      description: 'Private API network',
+    ),
+    const CUiShellNavItem(
+      label: 'Settings',
+      icon: Icons.settings,
+      description: 'App settings',
     ),
   ];
 
@@ -69,116 +54,86 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
 
-    return Scaffold(
-      backgroundColor: tokens.background,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            CUiShellHeader(
-              props: CUiShellHeaderProps(
-                title: 'API Dash',
-                showMenuButton: true,
-                menuIcon: CIcons.grid,
-                menuItems: _navMenuItems,
-                actions: [
-                  CUiShellHeaderAction(
-                    label: 'Settings',
-                    icon: CIcons.settings,
-                    onPressed: () {},
-                  ),
-                ],
-                trailing: CMenuButton(
-                  props: CMenuButtonProps(
-                    label: 'Workspaces',
-                    icon: const Icon(Icons.keyboard_arrow_down, size: 16),
-                    kind: CMenuButtonKind.ghost,
-                    size: CMenuSize.sm,
-                    items: _workspaceMenuItems,
-                  ),
+    return CUiShell(
+      props: CUiShellProps(
+        items: _shellItems,
+        title: 'API Dash',
+        selectedIndex: _selectedIndex,
+        onSelect: (index) => setState(() => _selectedIndex = index),
+      ),
+      child: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _LandingContent(tokens: tokens),
+          const WorkSpaceBody(),
+          _ComingSoonBody(label: _shellItems[2].label, tokens: tokens),
+          const PublicApi(),
+          const PrivateApi(),
+          const SettingsPage(),
+        ],
+      ),
+    );
+  }
+}
+
+class _LandingContent extends StatelessWidget {
+  const _LandingContent({required this.tokens});
+
+  final AppThemeTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(Spacing.v32px2remSpacing07),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'WELCOME',
+                style: TypeScale.label01.copyWith(
+                  color: tokens.textSecondary,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 8.0,
+              const SizedBox(height: Spacing.v8px05remSpacing03),
+              Text(
+                'A new start',
+                style: TypeScale.heading05.copyWith(color: tokens.textPrimary),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Container(
-                      height: 36,
-                      constraints: const BoxConstraints(maxWidth: 600),
-                      decoration: BoxDecoration(
-                        color: tokens.layer01,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: tokens.borderSubtle01),
-                      ),
-                      child: TextField(
-                        textAlignVertical: TextAlignVertical.center,
-                        decoration: InputDecoration(
-                          hintText: 'Search',
-                          hintStyle: TextStyle(
-                            color: tokens.textSecondary,
-                            fontSize: 14,
-                          ),
-                          prefixIcon: Icon(
-                            Icons.search,
-                            color: tokens.textSecondary,
-                            size: 20,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.only(bottom: 12),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              const SizedBox(height: Spacing.v16px1remSpacing05),
+              Text(
+                'This is a clean shell built with the core Carbon '
+                'theme tokens and components. Add your screens one '
+                'page at a time.',
+                style: TypeScale.body01.copyWith(color: tokens.textSecondary),
               ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(Spacing.v32px2remSpacing07),
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 720),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'WELCOME',
-                          style: TypeScale.label01.copyWith(
-                            color: tokens.textSecondary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: Spacing.v8px05remSpacing03),
-                        Text(
-                          'A new start',
-                          style: TypeScale.heading05.copyWith(
-                            color: tokens.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: Spacing.v16px1remSpacing05),
-                        Text(
-                          'This is a clean shell built with the core Carbon '
-                          'theme tokens and components. Add your screens one '
-                          'page at a time.',
-                          style: TypeScale.body01.copyWith(
-                            color: tokens.textSecondary,
-                          ),
-                        ),
-                        const SizedBox(height: Spacing.v32px2remSpacing07),
-                        _GettingStartedCard(tokens: tokens),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
+              const SizedBox(height: Spacing.v32px2remSpacing07),
+              _GettingStartedCard(tokens: tokens),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComingSoonBody extends StatelessWidget {
+  const _ComingSoonBody({required this.label, required this.tokens});
+
+  final String label;
+  final AppThemeTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Spacing.v32px2remSpacing07),
+        child: Text(
+          'The "$label" screen is coming soon.',
+          style: TypeScale.heading03.copyWith(color: tokens.textPrimary),
         ),
       ),
     );

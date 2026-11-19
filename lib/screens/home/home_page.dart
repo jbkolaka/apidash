@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../core/carbon.dart';
+import '../settings_page.dart';
+import '../../features/home/widgets/private_api.dart';
+import '../../features/home/widgets/public_api.dart';
+import '../../features/home/widgets/work_space_body.dart';
 
 /// Fresh landing page for the rebuilt app.
 class HomePage extends StatefulWidget {
@@ -39,10 +43,10 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.lock,
       description: 'Private API network',
     ),
-    CUiShellNavItem(
+    const CUiShellNavItem(
       label: 'Settings',
       icon: Icons.settings,
-      description: 'Landing page',
+      description: 'App settings',
     ),
   ];
 
@@ -57,40 +61,79 @@ class _HomePageState extends State<HomePage> {
         selectedIndex: _selectedIndex,
         onSelect: (index) => setState(() => _selectedIndex = index),
       ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(Spacing.v32px2remSpacing07),
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'WELCOME',
-                  style: TypeScale.label01.copyWith(
-                    color: tokens.textSecondary,
-                    fontWeight: FontWeight.w600,
-                  ),
+      child: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _LandingContent(tokens: tokens),
+          const WorkSpaceBody(),
+          _ComingSoonBody(label: _shellItems[2].label, tokens: tokens),
+          const PublicApi(),
+          const PrivateApi(),
+          const SettingsPage(),
+        ],
+      ),
+    );
+  }
+}
+
+class _LandingContent extends StatelessWidget {
+  const _LandingContent({required this.tokens});
+
+  final AppThemeTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(Spacing.v32px2remSpacing07),
+      child: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 720),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'WELCOME',
+                style: TypeScale.label01.copyWith(
+                  color: tokens.textSecondary,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(height: Spacing.v8px05remSpacing03),
-                Text(
-                  'A new start',
-                  style: TypeScale.heading05.copyWith(
-                    color: tokens.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: Spacing.v16px1remSpacing05),
-                Text(
-                  'This is a clean shell built with the core Carbon '
-                  'theme tokens and components. Add your screens one '
-                  'page at a time.',
-                  style: TypeScale.body01.copyWith(color: tokens.textSecondary),
-                ),
-                const SizedBox(height: Spacing.v32px2remSpacing07),
-                _GettingStartedCard(tokens: tokens),
-              ],
-            ),
+              ),
+              const SizedBox(height: Spacing.v8px05remSpacing03),
+              Text(
+                'A new start',
+                style: TypeScale.heading05.copyWith(color: tokens.textPrimary),
+              ),
+              const SizedBox(height: Spacing.v16px1remSpacing05),
+              Text(
+                'This is a clean shell built with the core Carbon '
+                'theme tokens and components. Add your screens one '
+                'page at a time.',
+                style: TypeScale.body01.copyWith(color: tokens.textSecondary),
+              ),
+              const SizedBox(height: Spacing.v32px2remSpacing07),
+              _GettingStartedCard(tokens: tokens),
+            ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ComingSoonBody extends StatelessWidget {
+  const _ComingSoonBody({required this.label, required this.tokens});
+
+  final String label;
+  final AppThemeTokens tokens;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(Spacing.v32px2remSpacing07),
+        child: Text(
+          'The "$label" screen is coming soon.',
+          style: TypeScale.heading03.copyWith(color: tokens.textPrimary),
         ),
       ),
     );

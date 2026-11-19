@@ -3,7 +3,7 @@ import 'package:flutter_portal/flutter_portal.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/theme/theme.dart';
-import 'screens/home/home_page.dart';
+import 'features/home/screen/home.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +23,7 @@ class ApiDashApp extends StatelessWidget {
         theme: AppTheme.whiteTheme,
         darkTheme: AppTheme.gray100Theme,
         themeMode: ThemeMode.system,
-        home: const HomePage(),
+        home: const Home(),
       ),
     );
   }
