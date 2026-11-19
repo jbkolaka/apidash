@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:apidash/main.dart' as app;
 import 'package:apidash/app.dart';
 import 'package:apidash/consts.dart';
 import 'package:apidash/widgets/widgets.dart';
@@ -37,14 +36,14 @@ class ApidashTestHelper {
     final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
     binding.framePolicy = LiveTestWidgetsFlutterBindingFramePolicy.fullyLive;
 
-    await app.initApp(false);
-    await app.initWindow(sz: size);
+    await initApp(false);
+    await initWindow(sz: size);
 
     return binding;
   }
 
   static Future<void> loadApp(WidgetTester tester) async {
-    await app.initApp(false);
+    await initApp(false);
     await tester.pumpWidget(
       ProviderScope(
         overrides: [

@@ -1,6 +1,5 @@
+import 'package:apidash/core/carbon.dart';
 import 'package:flutter/material.dart';
-
-import '../../core/carbon.dart';
 
 /// Fresh landing page for the rebuilt app.
 class HomePage extends StatelessWidget {
