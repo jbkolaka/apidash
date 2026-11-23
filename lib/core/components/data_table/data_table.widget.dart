@@ -162,14 +162,16 @@ class _CDataTableState extends State<CDataTable> {
         ),
         alignment: Alignment.centerLeft,
         child: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              column.label,
-              style: TextStyle(
-                color: tokens.textSecondary,
-                fontSize: CDataTableStyles.headerFontSize,
-                fontWeight: FontWeight.w600,
+            Expanded(
+              child: Text(
+                column.label,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: tokens.textSecondary,
+                  fontSize: CDataTableStyles.headerFontSize,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
             if (column.sortable) ...[
@@ -216,13 +218,16 @@ class _CDataTableState extends State<CDataTable> {
                 right: CDataTableStyles.cellRightPadding,
               ),
               alignment: Alignment.centerLeft,
-              child: column.cellBuilder?.call(
+              child:
+                  column.cellBuilder?.call(
                     context,
                     row[column.key],
                     rowIndex,
                   ) ??
                   Text(
                     row[column.key]?.toString() ?? '',
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                     style: TextStyle(
                       color: tokens.textPrimary,
                       fontSize: CDataTableStyles.cellFontSize,

@@ -53,8 +53,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    final tokens = context.tokens;
-
     return CUiShell(
       props: CUiShellProps(
         items: _shellItems,
