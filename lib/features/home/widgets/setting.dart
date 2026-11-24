@@ -85,7 +85,7 @@ class _GettingStartedCard extends StatelessWidget {
             children: [
               CButton(
                 label: 'Create request',
-                icon: const Icon(Icons.add, size: 16),
+                icon: const Icon(CIcons.add, size: 16),
                 onTap: () {},
               ),
               CButton(

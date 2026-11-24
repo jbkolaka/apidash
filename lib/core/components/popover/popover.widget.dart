@@ -20,6 +20,7 @@ class CPopover extends StatefulWidget {
     bool highContrast = false,
     bool autoAlign = true,
     bool closeOnTapOutside = true,
+    bool hitTestable = true,
     double offset = 4.0,
     VoidCallback? onRequestClose,
     Widget? trigger,
@@ -34,6 +35,7 @@ class CPopover extends StatefulWidget {
          highContrast: highContrast,
          autoAlign: autoAlign,
          closeOnTapOutside: closeOnTapOutside,
+         hitTestable: hitTestable,
          offset: offset,
          onRequestClose: onRequestClose,
          trigger: trigger,
@@ -205,27 +207,40 @@ class _CPopoverState extends State<CPopover> {
               onTap: _handleTapOutside,
             ),
           ),
-        CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          targetAnchor: _targetAnchor(widget.props.align),
-          followerAnchor: _followerAnchor(widget.props.align),
-          offset: _alignmentOffset(
-            widget.props.align,
-            widget.props.offset,
-            widget.props.caret,
-          ),
-          child: DefaultTextStyle(
-            style: TextStyle(color: textColor, fontSize: 14.0),
-            child: Material(
-              type: MaterialType.transparency,
-              child: _PopoverSurface(
-                align: widget.props.align,
-                caret: widget.props.caret,
-                dropShadow: widget.props.dropShadow,
-                backgroundColor: bgColor,
-                borderColor: borderColor,
-                child: widget.props.content ?? const SizedBox.shrink(),
+        IgnorePointer(
+          ignoring: !widget.props.hitTestable,
+          child: CompositedTransformFollower(
+            link: _layerLink,
+            showWhenUnlinked: false,
+            targetAnchor: _targetAnchor(widget.props.align),
+            followerAnchor: _followerAnchor(widget.props.align),
+            offset: _alignmentOffset(
+              widget.props.align,
+              widget.props.offset,
+              widget.props.caret,
+            ),
+            child: Align(
+              widthFactor: 0,
+              heightFactor: 0,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 288),
+                child: DefaultTextStyle(
+                  style: TextStyle(color: textColor, fontSize: 14.0),
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: _PopoverSurface(
+                      align: widget.props.align,
+                      caret: widget.props.caret,
+                      dropShadow: widget.props.dropShadow,
+                      backgroundColor: bgColor,
+                      borderColor: borderColor,
+                      child: Padding(
+                        padding: _Styles.defaultPadding,
+                        child: widget.props.content ?? const SizedBox.shrink(),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

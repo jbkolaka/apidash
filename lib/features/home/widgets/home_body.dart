@@ -53,13 +53,13 @@ class _HomeBodyState extends State<HomeBody> {
                     CContainedListItem(
                       label: 'Latest request',
                       description: 'Continue where you left off',
-                      icon: const Icon(Icons.bolt),
+                      icon: const Icon(CIcons.flash),
                       onTap: () {},
                     ),
                     CContainedListItem(
                       label: 'Sample collection',
                       description: 'Imported 2 hours ago',
-                      icon: const Icon(Icons.folder),
+                      icon: const Icon(CIcons.folder),
                       onTap: () {},
                     ),
                   ],

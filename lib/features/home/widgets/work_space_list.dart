@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart';
+import '../../workspace/screen/work_space.dart';
 
 class WorkSpaceBody extends StatefulWidget {
   const WorkSpaceBody({super.key});
@@ -107,7 +108,7 @@ class _WorkSpaceBodyState extends State<WorkSpaceBody> {
                   ),
                   CButton(
                     label: 'New collection',
-                    icon: const Icon(Icons.add, size: 16),
+                    icon: const Icon(CIcons.add, size: 16),
                     onTap: () {},
                   ),
                 ],
@@ -125,7 +126,13 @@ class _WorkSpaceBodyState extends State<WorkSpaceBody> {
                           'Requests and environments in this workspace.',
                       columns: _columns(width),
                       rows: visibleRows,
-                      onRowTap: (_) {},
+                      onRowTap: (_) {
+                        Navigator.of(context).push<void>(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const WorkSpace(),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },

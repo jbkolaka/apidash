@@ -4,7 +4,7 @@ import '../../core/carbon.dart';
 import '../settings_page.dart';
 import '../../features/home/widgets/private_api.dart';
 import '../../features/home/widgets/public_api.dart';
-import '../../features/home/widgets/work_space_body.dart';
+import '../../features/home/widgets/work_space_list.dart';
 
 /// Fresh landing page for the rebuilt app.
 class HomePage extends StatefulWidget {
@@ -20,32 +20,32 @@ class _HomePageState extends State<HomePage> {
   List<CUiShellNavItem> get _shellItems => [
     CUiShellNavItem(
       label: 'Home',
-      icon: Icons.home,
+      icon: CIcons.home,
       description: 'Landing page',
     ),
     CUiShellNavItem(
       label: 'Workspace',
-      icon: Icons.apartment,
+      icon: CIcons.building,
       description: 'Workspace landing',
     ),
     CUiShellNavItem(
       label: 'Application inventory',
-      icon: Icons.apps,
+      icon: CIcons.apps,
       description: 'Application inventory',
     ),
     CUiShellNavItem(
       label: 'Public API network',
-      icon: Icons.public,
+      icon: CIcons.globe,
       description: 'Public API network',
     ),
     CUiShellNavItem(
       label: 'Private API network',
-      icon: Icons.lock,
+      icon: CIcons.locked,
       description: 'Private API network',
     ),
     const CUiShellNavItem(
       label: 'Settings',
-      icon: Icons.settings,
+      icon: CIcons.settings,
       description: 'App settings',
     ),
   ];
@@ -175,7 +175,7 @@ class _GettingStartedCard extends StatelessWidget {
             children: [
               CButton(
                 label: 'Create request',
-                icon: const Icon(Icons.add, size: 16),
+                icon: const Icon(CIcons.add, size: 16),
                 onTap: () {},
               ),
               CButton(

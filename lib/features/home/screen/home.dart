@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart';
 import '../widgets/private_api.dart';
+import '../widgets/work_space_list.dart';
 import '../widgets/public_api.dart';
-import '../widgets/work_space_body.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -16,37 +16,37 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  int _selectedIndex = 0;
+  int _selectedNavIndex = 0;
 
   List<CUiShellNavItem> get _shellItems => [
     CUiShellNavItem(
       label: 'Home',
-      icon: Icons.home,
+      icon: CIcons.home,
       description: 'Landing page',
     ),
     CUiShellNavItem(
       label: 'Workspace',
-      icon: Icons.apartment,
+      icon: CIcons.building,
       description: 'Workspace landing',
     ),
     CUiShellNavItem(
       label: 'Application inventory',
-      icon: Icons.apps,
+      icon: CIcons.apps,
       description: 'Application inventory',
     ),
     CUiShellNavItem(
       label: 'Public API network',
-      icon: Icons.public,
+      icon: CIcons.globe,
       description: 'Public API network',
     ),
     CUiShellNavItem(
       label: 'Private API network',
-      icon: Icons.lock,
+      icon: CIcons.locked,
       description: 'Private API network',
     ),
     const CUiShellNavItem(
       label: 'Settings',
-      icon: Icons.settings,
+      icon: CIcons.settings,
       description: 'App settings',
     ),
   ];
@@ -57,18 +57,18 @@ class _HomeState extends State<Home> {
       props: CUiShellProps(
         items: _shellItems,
         title: 'API Dash',
-        selectedIndex: _selectedIndex,
-        onSelect: (index) => setState(() => _selectedIndex = index),
+        selectedIndex: _selectedNavIndex,
+        onSelect: (index) => setState(() => _selectedNavIndex = index),
       ),
       child: IndexedStack(
-        index: _selectedIndex,
-        children: [
-          const HomeBody(),
-          const WorkSpaceBody(),
-          const ApplicationBody(),
-          const PublicApi(),
-          const PrivateApi(),
-          const Setting(),
+        index: _selectedNavIndex,
+        children: const [
+          HomeBody(),
+          WorkSpaceBody(),
+          ApplicationBody(),
+          PublicApi(),
+          PrivateApi(),
+          Setting(),
         ],
       ),
     );

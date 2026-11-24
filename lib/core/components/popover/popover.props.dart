@@ -49,6 +49,7 @@ class CPopoverProps {
     this.highContrast = false,
     this.autoAlign = true,
     this.closeOnTapOutside = true,
+    this.hitTestable = true,
     this.offset = 4.0,
     this.onRequestClose,
     this.trigger,
@@ -76,6 +77,9 @@ class CPopoverProps {
 
   /// Whether tapping outside the popover requests it to close.
   final bool closeOnTapOutside;
+
+  /// Whether the popover surface participates in hit testing.
+  final bool hitTestable;
 
   /// Distance in logical pixels between trigger and popover container.
   final double offset;
