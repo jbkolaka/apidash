@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../../../core/carbon.dart';
 import 'work_space_model.dart';
-import 'work_space_popover_label.dart';
+import 'work_space_tooltip_label.dart';
 
 /// Body, headers, and cookies response viewer from the workbench layout.
 class WorkSpaceResponseViewer extends StatefulWidget {
@@ -238,11 +238,15 @@ class _ResponseBody extends StatelessWidget {
         Positioned(
           top: Spacing.v4px025remSpacing02,
           right: Spacing.v4px025remSpacing02,
-          child: WorkSpacePopoverLabel(
+          child: WorkSpaceTooltipLabel(
             label: 'Copy to clipboard',
-            triggerBuilder: (context, isOpen) => IconButton(
-              onPressed: onCopy,
-              icon: Icon(CIcons.copy, size: 16, color: tokens.iconSecondary),
+            child: SizedBox(
+              width: 16,
+              height: 16,
+              child: InkWell(
+                onTap: onCopy,
+                child: Icon(CIcons.copy, size: 16, color: tokens.iconSecondary),
+              ),
             ),
           ),
         ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart';
 import 'work_space_model.dart';
-import 'work_space_popover_label.dart';
+import 'work_space_tooltip_label.dart';
 
 /// Horizontal bar of open request tabs.
 class WorkSpaceTabsBar extends StatelessWidget {
@@ -89,9 +89,9 @@ class WorkSpaceTabsBar extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: Spacing.v8px05remSpacing03),
-                          WorkSpacePopoverLabel(
+                          WorkSpaceTooltipLabel(
                             label: 'Close request',
-                            triggerBuilder: (context, isOpen) => InkWell(
+                            child: InkWell(
                               onTap: () => onClosed(index),
                               child: Icon(
                                 CIcons.close,
@@ -108,11 +108,15 @@ class WorkSpaceTabsBar extends StatelessWidget {
               },
             ),
           ),
-          WorkSpacePopoverLabel(
+          WorkSpaceTooltipLabel(
             label: 'New Request',
-            triggerBuilder: (context, isOpen) => IconButton(
-              onPressed: onAdded,
-              icon: Icon(CIcons.add, size: 16, color: tokens.iconSecondary),
+            child: SizedBox(
+              width: 16,
+              height: 16,
+              child: InkWell(
+                onTap: onAdded,
+                child: Icon(CIcons.add, size: 16, color: tokens.iconSecondary),
+              ),
             ),
           ),
         ],

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart';
 import 'work_space_model.dart';
-import 'work_space_popover_label.dart';
+import 'work_space_tooltip_label.dart';
 
 /// Request configuration tabs: params, authorization, headers, body, settings.
 class WorkSpaceConfigTabs extends StatefulWidget {
@@ -431,11 +431,15 @@ class _KeyValueRow extends StatelessWidget {
             onChanged: (value) => onChanged(item.copyWith(value: value)),
           ),
         ),
-        WorkSpacePopoverLabel(
+        WorkSpaceTooltipLabel(
           label: 'Remove row',
-          triggerBuilder: (context, isOpen) => IconButton(
-            onPressed: onRemove,
-            icon: Icon(CIcons.close, size: 14, color: tokens.iconSecondary),
+          child: SizedBox(
+            width: 14,
+            height: 14,
+            child: InkWell(
+              onTap: onRemove,
+              child: Icon(CIcons.close, size: 14, color: tokens.iconSecondary),
+            ),
           ),
         ),
       ],

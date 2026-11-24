@@ -23,6 +23,7 @@ class CTooltip extends StatefulWidget {
     bool closeOnActivation = true,
     bool highContrast = true,
     bool caret = true,
+    double offset = 4.0,
     bool enable = true,
     required this.child,
   }) : props = CTooltipProps(
@@ -34,6 +35,7 @@ class CTooltip extends StatefulWidget {
          closeOnActivation: closeOnActivation,
          highContrast: highContrast,
          caret: caret,
+         offset: offset,
          enable: enable,
        );
 
@@ -176,33 +178,37 @@ class _CTooltipState extends State<CTooltip> {
       highContrast: widget.props.highContrast,
     );
 
-    return CompositedTransformFollower(
-      link: _layerLink,
-      showWhenUnlinked: false,
-      targetAnchor: _targetAnchor(widget.props.align),
-      followerAnchor: _followerAnchor(widget.props.align),
-      offset: _alignmentOffset(
-        widget.props.align,
-        _Styles.defaultOffset,
-        widget.props.caret,
-      ),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: _Styles.maxWidth),
-        child: Material(
-          type: MaterialType.transparency,
-          child: _TooltipSurface(
-            align: widget.props.align,
-            caret: widget.props.caret,
-            backgroundColor: bgColor,
-            borderColor: borderColor,
-            child: Padding(
-              padding: _Styles.padding,
-              child: Text(
-                widget.props.label,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: _Styles.fontSize,
-                  fontWeight: _Styles.fontWeight,
+    return Positioned(
+      left: 0,
+      top: 0,
+      child: CompositedTransformFollower(
+        link: _layerLink,
+        showWhenUnlinked: false,
+        targetAnchor: _targetAnchor(widget.props.align),
+        followerAnchor: _followerAnchor(widget.props.align),
+        offset: _alignmentOffset(
+          widget.props.align,
+          widget.props.offset,
+          widget.props.caret,
+        ),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: _Styles.maxWidth),
+          child: Material(
+            type: MaterialType.transparency,
+            child: _TooltipSurface(
+              align: widget.props.align,
+              caret: widget.props.caret,
+              backgroundColor: bgColor,
+              borderColor: borderColor,
+              child: Padding(
+                padding: _Styles.padding,
+                child: Text(
+                  widget.props.label,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: _Styles.fontSize,
+                    fontWeight: _Styles.fontWeight,
+                  ),
                 ),
               ),
             ),

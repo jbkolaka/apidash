@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart';
+import '../../../core/components/tooltip/tooltip.props.dart'
+    as tooltip
+    show CTooltipAlignment;
 import 'work_space_model.dart';
-import 'work_space_popover_label.dart';
+import 'work_space_tooltip_label.dart';
 
 /// Narrow activity rail matching the Postman workbench layout.
 class WorkSpaceActivitySidebar extends StatelessWidget {
@@ -50,20 +53,32 @@ class WorkSpaceActivitySidebar extends StatelessWidget {
             onTap: () => onChanged(WorkspaceSidebarSection.environments),
           ),
           const Spacer(),
-          WorkSpacePopoverLabel(
-            align: CPopoverAlignment.rightStart,
+          WorkSpaceTooltipLabel(
+            align: tooltip.CTooltipAlignment.right,
             label: 'Runner',
-            triggerBuilder: (context, isOpen) => IconButton(
-              onPressed: () {},
-              icon: Icon(CIcons.tools, size: 20, color: tokens.iconSecondary),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: InkWell(
+                onTap: () {},
+                child: Icon(
+                  CIcons.tools,
+                  size: 20,
+                  color: tokens.iconSecondary,
+                ),
+              ),
             ),
           ),
-          WorkSpacePopoverLabel(
-            align: CPopoverAlignment.rightStart,
+          WorkSpaceTooltipLabel(
+            align: tooltip.CTooltipAlignment.right,
             label: 'Help',
-            triggerBuilder: (context, isOpen) => IconButton(
-              onPressed: () {},
-              icon: Icon(CIcons.help, size: 20, color: tokens.iconSecondary),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: InkWell(
+                onTap: () {},
+                child: Icon(CIcons.help, size: 20, color: tokens.iconSecondary),
+              ),
             ),
           ),
           const SizedBox(height: Spacing.v8px05remSpacing03),
@@ -93,10 +108,10 @@ class _SectionButton extends StatelessWidget {
     final tokens = context.tokens;
     final color = active ? tokens.linkPrimary : tokens.iconSecondary;
 
-    return WorkSpacePopoverLabel(
-      align: CPopoverAlignment.rightEnd,
+    return WorkSpaceTooltipLabel(
+      align: tooltip.CTooltipAlignment.right,
       label: label,
-      triggerBuilder: (context, isOpen) => Material(
+      child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,

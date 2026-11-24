@@ -48,6 +48,7 @@ class CTooltipProps {
     this.closeOnActivation = true,
     this.highContrast = true,
     this.caret = true,
+    this.offset = 4.0,
     this.enable = true,
   });
 
@@ -74,6 +75,9 @@ class CTooltipProps {
 
   /// Whether to render a triangular caret pointer directed at the target element.
   final bool caret;
+
+  /// Distance in logical pixels between trigger and tooltip surface.
+  final double offset;
 
   /// Whether the tooltip is enabled and can be shown.
   final bool enable;
