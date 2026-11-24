@@ -141,7 +141,8 @@ The core HTTP request/response models (`HttpRequestModel`, `HttpResponseModel`) 
 ## Theming and UI Components
 
 - `lib/core/theme/` is the single source of design tokens. `AppThemeTokens` exposes semantic colors (background, layer, text, border, button, support, field, focus) for each `AppThemeMode`; `lib/core/theme/variables.dart` re-exports the generated token modules.
-- `lib/app.dart` owns the only app-level `MaterialApp` theme: `AppTheme.whiteTheme` for light mode and `AppTheme.gray100Theme` for dark mode, driven by `settingsProvider.isDark` and exposed through `AppThemeScope`.
+- The app roots build their `MaterialApp` from the token themes and provide `AppThemeScope`, so tokens and theme switching are available app-wide: `lib/main.dart` (current shell) defaults the mode from platform brightness, while `lib/app.dart` (dashboard shell) follows `settingsProvider.isDark`.
+- Screens must not wrap themselves in their own `Theme(data: AppTheme...)`; set the mode through the app root/`AppThemeScope` instead.
 - Widgets read tokens with `context.tokens` (`lib/core/theme/app_theme.dart`) instead of hardcoded `Color` values. Palette constants are only for surfaces that intentionally do not follow the theme, such as code syntax highlighting.
 - Carbon-style components live in `lib/core/components/` (`CButton`, `CTextField`, `CModal`, and related widgets). Their styles resolve colors through `AppThemeTokens`, so the same widget renders correctly in White and Gray 100.
 - The `CUiShellHeader` supports an optional Carbon menu (`menuItems`, `menuIcon`) plus a trailing widget slot; `CTypography` (in `lib/core/shared/styles/variables/type.style.dart`) provides the Carbon type scale and is exported with the spacing variables.

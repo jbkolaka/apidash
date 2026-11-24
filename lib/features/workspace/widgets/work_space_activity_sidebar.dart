@@ -7,7 +7,7 @@ import '../../../core/components/tooltip/tooltip.props.dart'
 import 'work_space_model.dart';
 import 'work_space_tooltip_label.dart';
 
-/// Narrow activity rail matching the Postman workbench layout.
+/// Narrow activity rail matching the workbench layout.
 class WorkSpaceActivitySidebar extends StatelessWidget {
   const WorkSpaceActivitySidebar({
     super.key,

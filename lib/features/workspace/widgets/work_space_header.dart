@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart';
 
-/// Postman-style application header rendered with Carbon shell components.
+/// API Dash workbench header rendered with Carbon shell components.
 class WorkSpaceHeader extends StatelessWidget {
   const WorkSpaceHeader({
     super.key,
@@ -72,8 +72,7 @@ class WorkSpaceHeader extends StatelessWidget {
 
         return CUiShellHeader(
           props: CUiShellHeaderProps(
-            title: 'Postman',
-            prefix: 'API Dash',
+            title: 'API Dash',
             showMenuButton: false,
             height: Spacing.v48px3remSpacing09,
             trailing: trailing,

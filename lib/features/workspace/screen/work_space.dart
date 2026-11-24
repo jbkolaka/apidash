@@ -52,45 +52,42 @@ class _WorkSpaceState extends State<WorkSpace> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: AppTheme.gray100Theme,
-      child: Scaffold(
-        body: Column(
-          children: [
-            WorkSpaceHeader(
-              environment: _selectedEnvironment,
-              environments: _environments.map((item) => item.name).toList(),
-              onEnvironmentChanged: (environment) =>
-                  setState(() => _selectedEnvironment = environment),
-              onBack: () => Navigator.of(context).maybePop(),
-            ),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  WorkSpaceActivitySidebar(
-                    selected: _activeSidebar,
-                    onChanged: _switchSidebar,
+    return Scaffold(
+      body: Column(
+        children: [
+          WorkSpaceHeader(
+            environment: _selectedEnvironment,
+            environments: _environments.map((item) => item.name).toList(),
+            onEnvironmentChanged: (environment) =>
+                setState(() => _selectedEnvironment = environment),
+            onBack: () => Navigator.of(context).maybePop(),
+          ),
+          Expanded(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                WorkSpaceActivitySidebar(
+                  selected: _activeSidebar,
+                  onChanged: _switchSidebar,
+                ),
+                SizedBox(
+                  width: Breakpoint.asideLeftMinWidth,
+                  child: WorkSpaceCollectionsPanel(
+                    section: _activeSidebar,
+                    collections: _collections,
+                    history: _history,
+                    environments: _environments,
+                    onOpenRequest: _openRequest,
+                    onAddRequest: _addNewTab,
+                    onEnvironmentSelected: _selectEnvironment,
                   ),
-                  SizedBox(
-                    width: Breakpoint.asideLeftMinWidth,
-                    child: WorkSpaceCollectionsPanel(
-                      section: _activeSidebar,
-                      collections: _collections,
-                      history: _history,
-                      environments: _environments,
-                      onOpenRequest: _openRequest,
-                      onAddRequest: _addNewTab,
-                      onEnvironmentSelected: _selectEnvironment,
-                    ),
-                  ),
-                  Expanded(child: _buildWorkbench(context)),
-                ],
-              ),
+                ),
+                Expanded(child: _buildWorkbench(context)),
+              ],
             ),
-            WorkSpaceStatusBar(environment: _selectedEnvironment, port: _port),
-          ],
-        ),
+          ),
+          WorkSpaceStatusBar(environment: _selectedEnvironment, port: _port),
+        ],
       ),
     );
   }

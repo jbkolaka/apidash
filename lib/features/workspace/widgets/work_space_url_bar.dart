@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/carbon.dart';
 import 'work_space_model.dart';
 
-/// Method, URL, and send controls from the Postman workbench.
+/// Method, URL, and send controls for the workbench.
 class WorkSpaceUrlBar extends StatefulWidget {
   const WorkSpaceUrlBar({
     super.key,
