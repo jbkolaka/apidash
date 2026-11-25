@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart' hide Theme;
-import '../widgets/work_space_activity_sidebar.dart';
 import '../widgets/work_space_collections_panel.dart';
 import '../widgets/work_space_config_tabs.dart';
 import '../widgets/work_space_header.dart';
@@ -30,7 +29,6 @@ class _WorkSpaceState extends State<WorkSpace> {
   late final Map<String, WorkspaceResponse> _responses;
 
   int _activeTabIndex = 0;
-  WorkspaceSidebarSection _activeSidebar = WorkspaceSidebarSection.collections;
   String? _selectedEnvironment;
   bool _isLoading = false;
 
@@ -68,21 +66,19 @@ class _WorkSpaceState extends State<WorkSpace> {
             onEnvironmentChanged: (environment) =>
                 setState(() => _selectedEnvironment = environment),
             onBack: () => Navigator.of(context).maybePop(),
+            collectionName: _collections.isNotEmpty
+                ? _collections.first.name
+                : 'Collections',
+            requestName: _activeRequest?.name ?? 'Workbench',
           ),
           Expanded(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                WorkSpaceActivitySidebar(
-                  selected: _activeSidebar,
-                  onChanged: _switchSidebar,
-                ),
                 SizedBox(
                   width: _collectionWidth,
                   child: WorkSpaceCollectionsPanel(
-                    section: _activeSidebar,
                     collections: _collections,
-                    history: _history,
                     environments: _environments,
                     onOpenRequest: _openRequest,
                     onAddRequest: _addNewTab,
@@ -215,10 +211,6 @@ class _WorkSpaceState extends State<WorkSpace> {
       : value > max
       ? max
       : value;
-
-  void _switchSidebar(WorkspaceSidebarSection section) {
-    setState(() => _activeSidebar = section);
-  }
 
   void _selectEnvironment(String environment) {
     setState(() => _selectedEnvironment = environment);

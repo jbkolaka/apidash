@@ -3,22 +3,18 @@ import 'package:flutter/material.dart';
 import '../../../core/carbon.dart';
 import 'work_space_model.dart';
 
-/// Collections, history, and environments panel of the workbench.
+/// Collections and resources panel of the workbench.
 class WorkSpaceCollectionsPanel extends StatefulWidget {
   const WorkSpaceCollectionsPanel({
     super.key,
-    required this.section,
     required this.collections,
-    required this.history,
     required this.environments,
     required this.onOpenRequest,
     required this.onAddRequest,
     required this.onEnvironmentSelected,
   });
 
-  final WorkspaceSidebarSection section;
   final List<WorkspaceCollection> collections;
-  final List<WorkspaceRequest> history;
   final List<WorkspaceEnvironment> environments;
   final ValueChanged<WorkspaceRequest> onOpenRequest;
   final VoidCallback onAddRequest;
@@ -48,7 +44,7 @@ class _WorkSpaceCollectionsPanelState extends State<WorkSpaceCollectionsPanel> {
             children: [
               Expanded(
                 child: Text(
-                  _title,
+                  'Collections',
                   style: TypeScale.label01.copyWith(
                     color: tokens.textPrimary,
                     fontWeight: FontWeight.w600,
@@ -73,25 +69,9 @@ class _WorkSpaceCollectionsPanelState extends State<WorkSpaceCollectionsPanel> {
             onChange: (value) => setState(() => _filter = value.toLowerCase()),
           ),
         ),
-        Expanded(child: _buildContent(context)),
+        Expanded(child: _buildCollections(context)),
       ],
     );
-  }
-
-  String get _title {
-    return switch (widget.section) {
-      WorkspaceSidebarSection.collections => 'Collections',
-      WorkspaceSidebarSection.history => 'History',
-      WorkspaceSidebarSection.environments => 'Environments',
-    };
-  }
-
-  Widget _buildContent(BuildContext context) {
-    return switch (widget.section) {
-      WorkspaceSidebarSection.collections => _buildCollections(context),
-      WorkspaceSidebarSection.history => _buildHistory(context),
-      WorkspaceSidebarSection.environments => _buildEnvironments(context),
-    };
   }
 
   Widget _buildCollections(BuildContext context) {
@@ -166,40 +146,6 @@ class _WorkSpaceCollectionsPanelState extends State<WorkSpaceCollectionsPanel> {
         ],
       ),
     );
-  }
-
-  Widget _buildHistory(BuildContext context) {
-    final items = widget.history
-        .where(
-          (request) =>
-              _filter.isEmpty ||
-              request.name.toLowerCase().contains(_filter) ||
-              request.url.toLowerCase().contains(_filter),
-        )
-        .map(
-          (request) => CContainedListItem(
-            label: request.name,
-            description: '${request.method} · ${request.url}',
-            icon: Icon(CIcons.time, size: 16),
-            action: _MethodTag(method: request.method),
-            onTap: () => widget.onOpenRequest(request),
-          ),
-        )
-        .toList();
-
-    if (items.isEmpty) return _emptyState(context);
-
-    return CContainedList(
-      props: CContainedListProps(
-        kind: CContainedListKind.disclosed,
-        size: CContainedListSize.sm,
-        items: items,
-      ),
-    );
-  }
-
-  Widget _buildEnvironments(BuildContext context) {
-    return _buildEnvironmentItems(context);
   }
 
   Widget _buildEnvironmentItems(BuildContext context) {

@@ -39,6 +39,7 @@ class CTextField extends StatefulWidget {
     this.obscuringCharacter = '•',
     this.readOnly = false,
     this.showCursor,
+    this.hideBorder = false,
     this.autofocus = false,
     this.autocorrect = true,
     this.enableSuggestions = true,
@@ -66,6 +67,7 @@ class CTextField extends StatefulWidget {
   final bool obscureText;
   final bool readOnly;
   final bool? showCursor;
+  final bool hideBorder;
   final bool autofocus;
   final bool autocorrect;
   final bool enableSuggestions;
@@ -189,6 +191,10 @@ class CTextFieldState extends State<CTextField> {
 
     _setStateVariables();
 
+    final inputBorder = widget.hideBorder
+        ? InputBorder.none
+        : _Styles.border(tokens, _kind, _state);
+
     return IgnorePointer(
       ignoring: !isEnabled || widget.readOnly,
       child: Column(
@@ -249,11 +255,13 @@ class CTextFieldState extends State<CTextField> {
               ),
               decoration: InputDecoration(
                 filled: true,
-                contentPadding: EdgeInsets.only(
-                  left: 14,
-                  top: isEnabled && _isFocused ? 8 : 8,
-                  bottom: isEnabled && _isFocused ? 12.5 : 15,
-                ),
+                contentPadding: widget.hideBorder
+                    ? const EdgeInsets.only(left: 14, right: 14, bottom: 12)
+                    : EdgeInsets.only(
+                        left: 14,
+                        top: 8,
+                        bottom: isEnabled && _isFocused ? 12.5 : 15,
+                      ),
                 fillColor:
                     inheritedBackgroundColor ??
                     _Styles.backgroundColor(tokens, _state),
@@ -293,10 +301,10 @@ class CTextFieldState extends State<CTextField> {
                     child: _validationResult?.icon ?? widget.suffixIcon!,
                   );
                 })(),
-                border: _Styles.border(tokens, _kind, _state),
-                enabledBorder: _Styles.border(tokens, _kind, _state),
-                focusedBorder: _Styles.border(tokens, _kind, _state),
-                disabledBorder: _Styles.border(tokens, _kind, _state),
+                border: inputBorder,
+                enabledBorder: inputBorder,
+                focusedBorder: inputBorder,
+                disabledBorder: inputBorder,
               ),
             ),
           ),

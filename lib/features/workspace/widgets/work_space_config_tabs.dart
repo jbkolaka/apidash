@@ -1,4 +1,6 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/carbon.dart';
 import 'work_space_model.dart';
@@ -30,7 +32,7 @@ class WorkSpaceConfigTabs extends StatefulWidget {
 }
 
 class _WorkSpaceConfigTabsState extends State<WorkSpaceConfigTabs> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 2;
 
   @override
   Widget build(BuildContext context) {
@@ -42,15 +44,16 @@ class _WorkSpaceConfigTabsState extends State<WorkSpaceConfigTabs> {
         CContentSwitcher(
           props: CContentSwitcherProps(
             size: CContentSwitcherSize.sm,
+            initialIndex: _selectedIndex,
             options: [
-              CContentSwitcherOption(
-                label: 'Params (${request.queryParams.length})',
-              ),
+              const CContentSwitcherOption(label: 'Docs'),
+              const CContentSwitcherOption(label: 'Params'),
               const CContentSwitcherOption(label: 'Authorization'),
               CContentSwitcherOption(
                 label: 'Headers (${request.headers.length})',
               ),
               const CContentSwitcherOption(label: 'Body'),
+              const CContentSwitcherOption(label: 'Scripts'),
               const CContentSwitcherOption(label: 'Settings'),
             ],
             onSelectionChanged: (index) =>
@@ -61,6 +64,7 @@ class _WorkSpaceConfigTabsState extends State<WorkSpaceConfigTabs> {
           child: IndexedStack(
             index: _selectedIndex,
             children: [
+              _DocsTab(request: request),
               _KeyValueTab(
                 title: 'Query parameters',
                 items: request.queryParams,
@@ -107,11 +111,156 @@ class _WorkSpaceConfigTabsState extends State<WorkSpaceConfigTabs> {
                 onBodyTypeChanged: widget.onBodyTypeChanged,
                 onBodyChanged: widget.onBodyChanged,
               ),
+              const _ScriptsTab(),
               const _SettingsTab(),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _DocsTab extends StatelessWidget {
+  const _DocsTab({required this.request});
+
+  final WorkspaceRequest request;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(Spacing.v16px1remSpacing05),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Documentation',
+            style: TypeScale.heading03.copyWith(color: tokens.textPrimary),
+          ),
+          const SizedBox(height: Spacing.v16px1remSpacing05),
+          Text(
+            request.name,
+            style: TypeScale.label01.copyWith(
+              color: tokens.textPrimary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: Spacing.v8px05remSpacing03),
+          Text(
+            '${request.method} ${request.url}',
+            style: TypeScale.bodyCompact01.copyWith(
+              color: tokens.textSecondary,
+            ),
+          ),
+          const SizedBox(height: Spacing.v16px1remSpacing05),
+          Text(
+            'Add a description for this request so your team knows what it does.',
+            style: TypeScale.bodyCompact01.copyWith(
+              color: tokens.textSecondary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScriptsTab extends StatefulWidget {
+  const _ScriptsTab();
+
+  @override
+  State<_ScriptsTab> createState() => _ScriptsTabState();
+}
+
+class _ScriptsTabState extends State<_ScriptsTab> {
+  final TextEditingController _preRequestController = TextEditingController();
+  final TextEditingController _postResponseController = TextEditingController();
+
+  @override
+  void dispose() {
+    _preRequestController.dispose();
+    _postResponseController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(Spacing.v16px1remSpacing05),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Scripts',
+            style: TypeScale.heading03.copyWith(color: tokens.textPrimary),
+          ),
+          const SizedBox(height: Spacing.v16px1remSpacing05),
+          Text(
+            'Pre-request',
+            style: TypeScale.label01.copyWith(
+              color: tokens.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: Spacing.v8px05remSpacing03),
+          _ScriptBox(
+            controller: _preRequestController,
+            hint: '// Runs before the request is sent',
+          ),
+          const SizedBox(height: Spacing.v16px1remSpacing05),
+          Text(
+            'Post-response',
+            style: TypeScale.label01.copyWith(
+              color: tokens.textSecondary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: Spacing.v8px05remSpacing03),
+          _ScriptBox(
+            controller: _postResponseController,
+            hint: '// Runs after the response is received',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ScriptBox extends StatelessWidget {
+  const _ScriptBox({required this.controller, required this.hint});
+
+  final TextEditingController controller;
+  final String hint;
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+
+    return Container(
+      height: 96,
+      padding: const EdgeInsets.all(Spacing.v8px05remSpacing03),
+      decoration: BoxDecoration(
+        color: tokens.field01,
+        border: Border.all(color: tokens.borderSubtle01),
+      ),
+      child: TextField(
+        controller: controller,
+        maxLines: null,
+        expands: true,
+        style: TypeScale.bodyCompact01.copyWith(color: tokens.textPrimary),
+        cursorColor: tokens.textPrimary,
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          hintText: hint,
+          hintStyle: TypeScale.bodyCompact01.copyWith(
+            color: tokens.textPlaceholder,
+          ),
+        ),
+      ),
     );
   }
 }
@@ -153,46 +302,129 @@ class _AuthTabState extends State<_AuthTab> {
   ];
 
   VoidCallback? _toggleAuthMenu;
+  TapGestureRecognizer? _authDocsRecognizer;
+
+  TapGestureRecognizer
+  get _authDocsLinkRecognizer => _authDocsRecognizer ??= TapGestureRecognizer()
+    ..onTap = () {
+      launchUrl(
+        Uri.parse(
+          'https://learning.postman.com/docs/sending-requests/authorization/',
+        ),
+      );
+    };
+
+  @override
+  void dispose() {
+    _authDocsRecognizer?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(Spacing.v16px1remSpacing05),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Type',
-                style: TypeScale.bodyCompact01.copyWith(
-                  color: tokens.textSecondary,
-                ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final availableHeight = constraints.maxHeight.isFinite
+            ? constraints.maxHeight - Spacing.v32px2remSpacing07
+            : 0.0;
+        final minHeight = availableHeight > 0 ? availableHeight : 0.0;
+
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(Spacing.v16px1remSpacing05),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: minHeight),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Type',
+                          style: TypeScale.label01.copyWith(
+                            color: tokens.textSecondary,
+                          ),
+                        ),
+                        const SizedBox(height: Spacing.v8px05remSpacing03),
+                        CPopover(
+                          align: CPopoverAlignment.bottomStart,
+                          triggerBuilder: (context, toggle, isOpen) {
+                            _toggleAuthMenu = toggle;
+                            return _buildTrigger(tokens, isOpen, toggle);
+                          },
+                          content: _buildAuthMenu(tokens),
+                        ),
+                        const SizedBox(height: 14),
+                        ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 560),
+                          child: RichText(
+                            text: TextSpan(
+                              style: TypeScale.caption01.copyWith(
+                                color: tokens.textSecondary,
+                                fontFamily: CFonts.primaryRegular,
+                              ),
+                              children: [
+                                const TextSpan(
+                                  text:
+                                      'The authorization data will be automatically '
+                                      'generated when you send the request. ',
+                                ),
+                                TextSpan(
+                                  text: 'Learn more about authorization ↗',
+                                  style: TextStyle(color: tokens.linkPrimary),
+                                  recognizer: _authDocsLinkRecognizer,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        if (widget.authType ==
+                            WorkspaceAuthType.bearerToken) ...[
+                          const SizedBox(height: Spacing.v24px15remSpacing06),
+                          ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 480),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  'Token',
+                                  style: TypeScale.label01.copyWith(
+                                    color: tokens.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: Spacing.v8px05remSpacing03,
+                                ),
+                                _ControlledTextField(
+                                  key: ValueKey(widget.token),
+                                  initialValue: widget.token,
+                                  hint: 'Paste bearer token here',
+                                  onChanged: widget.onTokenChanged,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: Spacing.v8px05remSpacing03),
+                  VerticalDivider(
+                    width: 1,
+                    thickness: 1,
+                    color: tokens.borderSubtle01,
+                  ),
+                ],
               ),
-              const SizedBox(width: Spacing.v16px1remSpacing05),
-              CPopover(
-                align: CPopoverAlignment.bottomStart,
-                triggerBuilder: (context, toggle, isOpen) {
-                  _toggleAuthMenu = toggle;
-                  return _buildTrigger(tokens, isOpen, toggle);
-                },
-                content: _buildAuthMenu(tokens),
-              ),
-            ],
-          ),
-          if (widget.authType == WorkspaceAuthType.bearerToken) ...[
-            const SizedBox(height: Spacing.v16px1remSpacing05),
-            _ControlledTextField(
-              key: ValueKey(widget.token),
-              initialValue: widget.token,
-              hint: 'Paste bearer token here',
-              onChanged: widget.onTokenChanged,
             ),
-          ],
-        ],
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -206,10 +438,10 @@ class _AuthTabState extends State<_AuthTab> {
       child: InkWell(
         onTap: toggle,
         child: Container(
-          width: 220,
-          height: 32,
+          width: 280,
+          height: Spacing.v40px25remSpacing08,
           padding: const EdgeInsets.symmetric(
-            horizontal: Spacing.v8px05remSpacing03,
+            horizontal: Spacing.v16px1remSpacing05,
           ),
           decoration: BoxDecoration(
             color: tokens.field01,
@@ -242,7 +474,7 @@ class _AuthTabState extends State<_AuthTab> {
       constraints: const BoxConstraints(maxHeight: 420),
       child: SingleChildScrollView(
         child: SizedBox(
-          width: 248,
+          width: 280,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,

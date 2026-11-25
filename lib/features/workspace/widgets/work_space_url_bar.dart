@@ -38,6 +38,7 @@ class _WorkSpaceUrlBarState extends State<WorkSpaceUrlBar> {
   ];
 
   late final TextEditingController _controller;
+  VoidCallback? _toggleMethodMenu;
 
   @override
   void initState() {
@@ -90,19 +91,13 @@ class _WorkSpaceUrlBarState extends State<WorkSpaceUrlBar> {
                     children: [
                       SizedBox(
                         width: compact ? 88 : 104,
-                        child: CSelect<String>(
-                          size: CSelectSize.sm,
-                          hideLabel: true,
-                          value: widget.request.method,
-                          items: [
-                            for (final method in _methods)
-                              CSelectItem<String>(value: method, label: method),
-                          ],
-                          onChanged: (method) {
-                            if (method != null) {
-                              widget.onMethodChanged(method);
-                            }
+                        child: CPopover(
+                          align: CPopoverAlignment.bottomStart,
+                          triggerBuilder: (context, toggle, isOpen) {
+                            _toggleMethodMenu = toggle;
+                            return _buildMethodTrigger(tokens, isOpen, toggle);
                           },
+                          content: _buildMethodMenu(tokens),
                         ),
                       ),
                       Container(
@@ -112,6 +107,7 @@ class _WorkSpaceUrlBarState extends State<WorkSpaceUrlBar> {
                       ),
                       Expanded(
                         child: CTextField(
+                          hideBorder: true,
                           controller: _controller,
                           hint: 'Enter URL or paste text',
                           onChanged: widget.onUrlChanged,
@@ -130,18 +126,132 @@ class _WorkSpaceUrlBarState extends State<WorkSpaceUrlBar> {
                 enable: !widget.loading,
                 onTap: widget.onSend,
               ),
-              if (!compact) ...[
-                const SizedBox(width: Spacing.v8px05remSpacing03),
-                CButton(
-                  label: 'Save',
-                  size: CButtonSize.sm,
-                  kind: CButtonKind.secondary,
-                  onTap: widget.onSave,
-                ),
-              ],
+              // if (!compact) ...[
+              //   const SizedBox(width: Spacing.v8px05remSpacing03),
+              //   CButton(
+              //     label: 'Save',
+              //     size: CButtonSize.sm,
+              //     kind: CButtonKind.secondary,
+              //     onTap: widget.onSave,
+              //   ),
+              // ],
             ],
           );
         },
+      ),
+    );
+  }
+
+  Widget _buildMethodTrigger(
+    AppThemeTokens tokens,
+    bool isOpen,
+    VoidCallback toggle,
+  ) {
+    final method = widget.request.method;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: toggle,
+        child: Container(
+          height: Spacing.v48px3remSpacing09,
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.v8px05remSpacing03,
+          ),
+          decoration: BoxDecoration(
+            color: isOpen ? tokens.layerSelected01 : tokens.field01,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  method,
+                  overflow: TextOverflow.ellipsis,
+                  style: TypeScale.bodyCompact01.copyWith(
+                    color: workspaceMethodColor(method, tokens),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 4),
+              Icon(CIcons.chevronDown, size: 14, color: tokens.iconSecondary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMethodMenu(AppThemeTokens tokens) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 320),
+      child: SingleChildScrollView(
+        child: SizedBox(
+          width: 132,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              for (final method in _methods) _methodItem(method, tokens),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _methodItem(String method, AppThemeTokens tokens) {
+    final selected = method == widget.request.method;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          widget.onMethodChanged(method);
+          _toggleMethodMenu?.call();
+        },
+        child: Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.v8px05remSpacing03,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? tokens.layerSelected01 : Colors.transparent,
+            border: Border(
+              left: BorderSide(
+                color: selected ? tokens.borderInteractive : Colors.transparent,
+                width: 2,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
+              SizedBox(
+                width: 14,
+                child: selected
+                    ? Icon(
+                        CIcons.checkmark,
+                        size: 14,
+                        color: tokens.iconPrimary,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: Spacing.v8px05remSpacing03),
+              Expanded(
+                child: Text(
+                  method,
+                  overflow: TextOverflow.ellipsis,
+                  style: TypeScale.bodyCompact01.copyWith(
+                    color: workspaceMethodColor(method, tokens),
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

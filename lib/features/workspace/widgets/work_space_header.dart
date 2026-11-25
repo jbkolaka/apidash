@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:window_manager/window_manager.dart';
 
-import '../../../core/carbon.dart';
+import '../../../consts.dart';
+import '../../../core/carbon.dart' hide Theme;
 
-/// API Dash workbench header rendered with Carbon shell components.
+/// Slim workbench title strip with breadcrumb navigation.
 class WorkSpaceHeader extends StatelessWidget {
   const WorkSpaceHeader({
     super.key,
@@ -10,29 +12,37 @@ class WorkSpaceHeader extends StatelessWidget {
     required this.environments,
     required this.onEnvironmentChanged,
     this.onBack,
+    this.collectionName = 'Collections',
+    this.requestName = 'Workbench',
   });
 
   final String? environment;
   final List<String> environments;
   final ValueChanged<String?> onEnvironmentChanged;
   final VoidCallback? onBack;
+  final String collectionName;
+  final String requestName;
 
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
+    final brightness = Theme.of(context).brightness;
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact = constraints.maxWidth < 700;
-        final veryCompact = constraints.maxWidth < 900;
+
+        Future<void> toggleMaximize() async {
+          if (await windowManager.isMaximized()) {
+            await windowManager.unmaximize();
+          } else {
+            await windowManager.maximize();
+          }
+        }
 
         final trailing = Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (!veryCompact) ...[
-              _WorkspaceChip(tokens: tokens),
-              const SizedBox(width: Spacing.v8px05remSpacing03),
-            ],
             if (!compact) ...[
               SizedBox(
                 width: 180,
@@ -44,7 +54,7 @@ class WorkSpaceHeader extends StatelessWidget {
               const SizedBox(width: Spacing.v8px05remSpacing03),
             ],
             SizedBox(
-              width: veryCompact ? 116 : 132,
+              width: compact ? 116 : 132,
               child: CSelect<String>(
                 size: CSelectSize.sm,
                 hideLabel: true,
@@ -67,63 +77,83 @@ class WorkSpaceHeader extends StatelessWidget {
                 },
               ),
             ),
+            if (kIsDesktop) ...[
+              const SizedBox(width: Spacing.v4px025remSpacing02),
+              WindowCaptionButton.minimize(
+                brightness: brightness,
+                onPressed: () async {
+                  if (await windowManager.isMinimized()) {
+                    await windowManager.restore();
+                  } else {
+                    await windowManager.minimize();
+                  }
+                },
+              ),
+              WindowCaptionButton.maximize(
+                brightness: brightness,
+                onPressed: toggleMaximize,
+              ),
+              WindowCaptionButton.close(
+                brightness: brightness,
+                onPressed: windowManager.close,
+              ),
+            ],
           ],
         );
 
-        return CUiShellHeader(
-          props: CUiShellHeaderProps(
-            title: 'API Dash',
-            showMenuButton: false,
-            height: Spacing.v48px3remSpacing09,
-            trailing: trailing,
-            actions: [
-              if (onBack != null)
-                CUiShellHeaderAction(
-                  label: 'Back to home',
-                  icon: CIcons.arrowLeft,
-                  onPressed: onBack,
+        return Container(
+          height: Spacing.v40px25remSpacing08,
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.v16px1remSpacing05,
+          ),
+          decoration: BoxDecoration(
+            color: tokens.background,
+            border: Border(bottom: BorderSide(color: tokens.borderSubtle00)),
+          ),
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onPanStart: kIsDesktop
+                ? (_) => windowManager.startDragging()
+                : null,
+            child: Row(
+              children: [
+                Expanded(
+                  child: CBreadcrumb(
+                    children: [
+                      CBreadcrumbItem(
+                        onTap: onBack ?? () {},
+                        child: Text(
+                          'My Workspace',
+                          style: TypeScale.bodyCompact01,
+                        ),
+                      ),
+                      CBreadcrumbItem(
+                        onTap: onBack ?? () {},
+                        child: Text(
+                          collectionName,
+                          overflow: TextOverflow.ellipsis,
+                          style: TypeScale.bodyCompact01,
+                        ),
+                      ),
+                      CBreadcrumbItem(
+                        isCurrentPage: true,
+                        onTap: () {},
+                        child: Text(
+                          requestName,
+                          overflow: TextOverflow.ellipsis,
+                          style: TypeScale.bodyCompact01,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              const CUiShellHeaderAction(
-                label: 'Settings',
-                icon: CIcons.settings,
-              ),
-            ],
+                const SizedBox(width: Spacing.v8px05remSpacing03),
+                trailing,
+              ],
+            ),
           ),
         );
       },
-    );
-  }
-}
-
-class _WorkspaceChip extends StatelessWidget {
-  const _WorkspaceChip({required this.tokens});
-
-  final AppThemeTokens tokens;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 32,
-      padding: const EdgeInsets.symmetric(
-        horizontal: Spacing.v8px05remSpacing03,
-      ),
-      decoration: BoxDecoration(
-        color: tokens.layer02,
-        border: Border.all(color: tokens.borderSubtle01),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(CIcons.building, size: 14, color: tokens.iconSecondary),
-          const SizedBox(width: Spacing.v4px025remSpacing02),
-          Text(
-            'My Workspace',
-            style: TypeScale.bodyCompact01.copyWith(color: tokens.textPrimary),
-          ),
-          const SizedBox(width: Spacing.v2px0125remSpacing01),
-          Icon(CIcons.chevronDown, size: 14, color: tokens.iconSecondary),
-        ],
-      ),
     );
   }
 }

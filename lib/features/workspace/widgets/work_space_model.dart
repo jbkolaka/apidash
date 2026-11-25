@@ -2,9 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart';
 
-/// Sections exposed by the workspace activity rail.
-enum WorkspaceSidebarSection { collections, history, environments }
-
 enum WorkspaceAuthType {
   oauth2,
   apiKey,
@@ -185,6 +182,11 @@ List<WorkspaceRequest> workspaceSeedRequests() {
       headers: const [
         WorkspaceKeyValue(key: 'Accept', value: 'application/json'),
         WorkspaceKeyValue(key: 'Cache-Control', value: 'no-cache'),
+        WorkspaceKeyValue(key: 'Content-Type', value: 'application/json'),
+        WorkspaceKeyValue(key: 'User-Agent', value: 'API Dash Workspace'),
+        WorkspaceKeyValue(key: 'X-Api-Version', value: 'v1'),
+        WorkspaceKeyValue(key: 'X-Request-Id', value: 'req-get-users'),
+        WorkspaceKeyValue(key: 'Accept-Language', value: 'en-US'),
       ],
     ),
     WorkspaceRequest(
