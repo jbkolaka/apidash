@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import '../../theme/variables.dart' hide Theme, Radius;
 
 import 'popover.props.dart';
@@ -50,8 +51,11 @@ class CPopover extends StatefulWidget {
 }
 
 class _CPopoverState extends State<CPopover> {
-  final LayerLink _layerLink = LayerLink();
+  final GlobalKey _triggerKey = GlobalKey();
+  final GlobalKey _surfaceKey = GlobalKey();
   OverlayEntry? _overlayEntry;
+  Offset _anchorPoint = Offset.zero;
+  Offset _surfaceOffset = Offset.zero;
   bool _internalOpen = false;
 
   bool get _isOpen =>
@@ -71,11 +75,14 @@ class _CPopoverState extends State<CPopover> {
     super.didUpdateWidget(oldWidget);
     if (widget.props.open != oldWidget.props.open) {
       _internalOpen = widget.props.open;
-      if (widget.props.open) {
-        _showOverlay();
-      } else {
-        _hideOverlay();
-      }
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (widget.props.open) {
+          _showOverlay();
+        } else {
+          _hideOverlay();
+        }
+      });
     }
   }
 
@@ -107,17 +114,72 @@ class _CPopoverState extends State<CPopover> {
     widget.props.onRequestClose?.call();
   }
 
+  void _handleOutsidePointerDown(PointerDownEvent event) {
+    final surfaceContext = _surfaceKey.currentContext;
+    if (surfaceContext != null) {
+      final surface = surfaceContext.findRenderObject() as RenderBox?;
+      if (surface != null &&
+          surface.hitTest(
+            BoxHitTestResult(),
+            position: surface.globalToLocal(event.position),
+          )) {
+        return;
+      }
+    }
+    _handleTapOutside();
+  }
+
   void _showOverlay() {
     if (_overlayEntry != null) return;
 
     final overlay = Overlay.maybeOf(context);
     if (overlay == null) return;
 
+    final trigger = _triggerKey.currentContext?.findRenderObject();
+    final triggerBox = trigger is RenderBox && trigger.hasSize ? trigger : null;
+    final position = triggerBox?.localToGlobal(Offset.zero) ?? Offset.zero;
+    final size = triggerBox?.size ?? Size.zero;
+    _anchorPoint =
+        _triggerAnchorPoint(widget.props.align, position, size) +
+        _alignmentOffset(
+          widget.props.align,
+          widget.props.offset,
+          widget.props.caret,
+        );
+    _surfaceOffset = _anchorPoint;
+
     final tokens = context.tokens;
     _overlayEntry = OverlayEntry(
       builder: (context) => _buildOverlayContent(tokens),
     );
     overlay.insert(_overlayEntry!);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _alignSurface());
+  }
+
+  void _alignSurface() {
+    if (!mounted || _overlayEntry == null) return;
+    final surface = _surfaceKey.currentContext?.findRenderObject();
+    if (surface is! RenderBox || !surface.hasSize) return;
+
+    final alignment = _followerAnchor(widget.props.align);
+    var left = _anchorPoint.dx - (alignment.x + 1) * surface.size.width / 2;
+    var top = _anchorPoint.dy - (alignment.y + 1) * surface.size.height / 2;
+
+    if (widget.props.autoAlign) {
+      final screen = MediaQuery.maybeSizeOf(context);
+      if (screen != null) {
+        final maxLeft = screen.width - surface.size.width - 8;
+        final maxTop = screen.height - surface.size.height - 8;
+        left = left.clamp(8.0, maxLeft < 8 ? 8.0 : maxLeft);
+        top = top.clamp(8.0, maxTop < 8 ? 8.0 : maxTop);
+      }
+    }
+
+    final next = Offset(left, top);
+    if (next != _surfaceOffset) {
+      _surfaceOffset = next;
+      _overlayEntry?.markNeedsBuild();
+    }
   }
 
   void _hideOverlay() {
@@ -126,20 +188,51 @@ class _CPopoverState extends State<CPopover> {
     _overlayEntry = null;
   }
 
-  Alignment _targetAnchor(CPopoverAlignment align) {
+  Offset _triggerAnchorPoint(
+    CPopoverAlignment align,
+    Offset position,
+    Size size,
+  ) {
     return switch (align) {
-      CPopoverAlignment.top => Alignment.topCenter,
-      CPopoverAlignment.topStart => Alignment.topLeft,
-      CPopoverAlignment.topEnd => Alignment.topRight,
-      CPopoverAlignment.bottom => Alignment.bottomCenter,
-      CPopoverAlignment.bottomStart => Alignment.bottomLeft,
-      CPopoverAlignment.bottomEnd => Alignment.bottomRight,
-      CPopoverAlignment.left => Alignment.centerLeft,
-      CPopoverAlignment.leftStart => Alignment.topLeft,
-      CPopoverAlignment.leftEnd => Alignment.bottomLeft,
-      CPopoverAlignment.right => Alignment.centerRight,
-      CPopoverAlignment.rightStart => Alignment.topRight,
-      CPopoverAlignment.rightEnd => Alignment.bottomRight,
+      CPopoverAlignment.top => Offset(
+        position.dx + size.width / 2,
+        position.dy,
+      ),
+      CPopoverAlignment.topStart => position,
+      CPopoverAlignment.topEnd => Offset(position.dx + size.width, position.dy),
+      CPopoverAlignment.bottom => Offset(
+        position.dx + size.width / 2,
+        position.dy + size.height,
+      ),
+      CPopoverAlignment.bottomStart => Offset(
+        position.dx,
+        position.dy + size.height,
+      ),
+      CPopoverAlignment.bottomEnd => Offset(
+        position.dx + size.width,
+        position.dy + size.height,
+      ),
+      CPopoverAlignment.left => Offset(
+        position.dx,
+        position.dy + size.height / 2,
+      ),
+      CPopoverAlignment.leftStart => position,
+      CPopoverAlignment.leftEnd => Offset(
+        position.dx,
+        position.dy + size.height,
+      ),
+      CPopoverAlignment.right => Offset(
+        position.dx + size.width,
+        position.dy + size.height / 2,
+      ),
+      CPopoverAlignment.rightStart => Offset(
+        position.dx + size.width,
+        position.dy,
+      ),
+      CPopoverAlignment.rightEnd => Offset(
+        position.dx + size.width,
+        position.dy + size.height,
+      ),
     };
   }
 
@@ -202,42 +295,32 @@ class _CPopoverState extends State<CPopover> {
       children: [
         if (widget.props.closeOnTapOutside)
           Positioned.fill(
-            child: GestureDetector(
+            child: Listener(
               behavior: HitTestBehavior.translucent,
-              onTap: _handleTapOutside,
+              onPointerDown: _handleOutsidePointerDown,
             ),
           ),
-        IgnorePointer(
-          ignoring: !widget.props.hitTestable,
-          child: CompositedTransformFollower(
-            link: _layerLink,
-            showWhenUnlinked: false,
-            targetAnchor: _targetAnchor(widget.props.align),
-            followerAnchor: _followerAnchor(widget.props.align),
-            offset: _alignmentOffset(
-              widget.props.align,
-              widget.props.offset,
-              widget.props.caret,
-            ),
-            child: Align(
-              widthFactor: 0,
-              heightFactor: 0,
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 288),
-                child: DefaultTextStyle(
-                  style: TextStyle(color: textColor, fontSize: 14.0),
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: _PopoverSurface(
-                      align: widget.props.align,
-                      caret: widget.props.caret,
-                      dropShadow: widget.props.dropShadow,
-                      backgroundColor: bgColor,
-                      borderColor: borderColor,
-                      child: Padding(
-                        padding: _Styles.defaultPadding,
-                        child: widget.props.content ?? const SizedBox.shrink(),
-                      ),
+        Positioned(
+          left: _surfaceOffset.dx,
+          top: _surfaceOffset.dy,
+          child: IgnorePointer(
+            ignoring: !widget.props.hitTestable,
+            child: ConstrainedBox(
+              key: _surfaceKey,
+              constraints: const BoxConstraints(maxWidth: 288),
+              child: DefaultTextStyle(
+                style: TextStyle(color: textColor, fontSize: 14.0),
+                child: Material(
+                  type: MaterialType.transparency,
+                  child: _PopoverSurface(
+                    align: widget.props.align,
+                    caret: widget.props.caret,
+                    dropShadow: widget.props.dropShadow,
+                    backgroundColor: bgColor,
+                    borderColor: borderColor,
+                    child: Padding(
+                      padding: _Styles.defaultPadding,
+                      child: widget.props.content ?? const SizedBox.shrink(),
                     ),
                   ),
                 ),
@@ -258,7 +341,7 @@ class _CPopoverState extends State<CPopover> {
       triggerWidget = widget.props.trigger ?? const SizedBox.shrink();
     }
 
-    return CompositedTransformTarget(link: _layerLink, child: triggerWidget);
+    return KeyedSubtree(key: _triggerKey, child: triggerWidget);
   }
 }
 

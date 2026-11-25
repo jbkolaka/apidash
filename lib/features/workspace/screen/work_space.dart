@@ -23,9 +23,9 @@ class _WorkSpaceState extends State<WorkSpace> {
   static const _port = 10534;
 
   late final List<WorkspaceRequest> _seedRequests;
-  late final List<WorkspaceRequest> _openTabs;
-  late final List<WorkspaceRequest> _history;
-  late final List<WorkspaceCollection> _collections;
+  late List<WorkspaceRequest> _openTabs;
+  late List<WorkspaceRequest> _history;
+  late List<WorkspaceCollection> _collections;
   late final List<WorkspaceEnvironment> _environments;
   late final Map<String, WorkspaceResponse> _responses;
 

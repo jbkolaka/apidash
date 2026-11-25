@@ -116,7 +116,7 @@ class _WorkSpaceConfigTabsState extends State<WorkSpaceConfigTabs> {
   }
 }
 
-class _AuthTab extends StatelessWidget {
+class _AuthTab extends StatefulWidget {
   const _AuthTab({
     required this.authType,
     required this.token,
@@ -128,6 +128,31 @@ class _AuthTab extends StatelessWidget {
   final String token;
   final ValueChanged<WorkspaceAuthType> onAuthTypeChanged;
   final ValueChanged<String> onTokenChanged;
+
+  @override
+  State<_AuthTab> createState() => _AuthTabState();
+}
+
+class _AuthTabState extends State<_AuthTab> {
+  static const _standardTypes = [
+    WorkspaceAuthType.oauth2,
+    WorkspaceAuthType.apiKey,
+    WorkspaceAuthType.basicAuth,
+    WorkspaceAuthType.bearerToken,
+    WorkspaceAuthType.digestAuth,
+    WorkspaceAuthType.hawkAuthentication,
+    WorkspaceAuthType.jwtBearer,
+    WorkspaceAuthType.oauth1,
+  ];
+
+  static const _vendorTypes = [
+    WorkspaceAuthType.akamaiEdgegrid,
+    WorkspaceAuthType.asap,
+    WorkspaceAuthType.awsSignature,
+    WorkspaceAuthType.ntlmAuthentication,
+  ];
+
+  VoidCallback? _toggleAuthMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -147,43 +172,166 @@ class _AuthTab extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: Spacing.v16px1remSpacing05),
+              CPopover(
+                align: CPopoverAlignment.bottomStart,
+                triggerBuilder: (context, toggle, isOpen) {
+                  _toggleAuthMenu = toggle;
+                  return _buildTrigger(tokens, isOpen, toggle);
+                },
+                content: _buildAuthMenu(tokens),
+              ),
+            ],
+          ),
+          if (widget.authType == WorkspaceAuthType.bearerToken) ...[
+            const SizedBox(height: Spacing.v16px1remSpacing05),
+            _ControlledTextField(
+              key: ValueKey(widget.token),
+              initialValue: widget.token,
+              hint: 'Paste bearer token here',
+              onChanged: widget.onTokenChanged,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTrigger(
+    AppThemeTokens tokens,
+    bool isOpen,
+    VoidCallback toggle,
+  ) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: toggle,
+        child: Container(
+          width: 220,
+          height: 32,
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.v8px05remSpacing03,
+          ),
+          decoration: BoxDecoration(
+            color: tokens.field01,
+            border: Border.all(
+              color: isOpen ? tokens.borderInteractive : tokens.borderSubtle01,
+            ),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  widget.authType.label,
+                  overflow: TextOverflow.ellipsis,
+                  style: TypeScale.bodyCompact01.copyWith(
+                    color: tokens.textPrimary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: Spacing.v8px05remSpacing03),
+              Icon(CIcons.chevronDown, size: 16, color: tokens.iconSecondary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAuthMenu(AppThemeTokens tokens) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxHeight: 420),
+      child: SingleChildScrollView(
+        child: SizedBox(
+          width: 248,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _sectionLabel('Standard Types', tokens),
+              for (final type in _standardTypes) _authItem(type, tokens),
+              const SizedBox(height: Spacing.v4px025remSpacing02),
+              Divider(height: 1, color: tokens.borderSubtle01),
+              _sectionLabel('Specific/Vendor Types', tokens),
+              for (final type in _vendorTypes) _authItem(type, tokens),
+              const SizedBox(height: Spacing.v4px025remSpacing02),
+              Divider(height: 1, color: tokens.borderSubtle01),
+              _sectionLabel('Other', tokens),
+              _authItem(WorkspaceAuthType.none, tokens),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String label, AppThemeTokens tokens) {
+    return Padding(
+      padding: const EdgeInsets.only(
+        top: Spacing.v8px05remSpacing03,
+        bottom: Spacing.v4px025remSpacing02,
+      ),
+      child: Text(
+        label,
+        style: TypeScale.label01.copyWith(
+          color: tokens.textSecondary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  Widget _authItem(WorkspaceAuthType type, AppThemeTokens tokens) {
+    final selected = type == widget.authType;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          widget.onAuthTypeChanged(type);
+          _toggleAuthMenu?.call();
+        },
+        child: Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(
+            horizontal: Spacing.v8px05remSpacing03,
+          ),
+          decoration: BoxDecoration(
+            color: selected ? tokens.layerSelected01 : Colors.transparent,
+            border: Border(
+              left: BorderSide(
+                color: selected ? tokens.borderInteractive : Colors.transparent,
+                width: 2,
+              ),
+            ),
+          ),
+          child: Row(
+            children: [
               SizedBox(
-                width: 180,
-                child: CSelect<WorkspaceAuthType>(
-                  size: CSelectSize.sm,
-                  hideLabel: true,
-                  value: authType,
-                  items: const [
-                    CSelectItem(
-                      value: WorkspaceAuthType.none,
-                      label: 'No Auth',
-                    ),
-                    CSelectItem(
-                      value: WorkspaceAuthType.bearerToken,
-                      label: 'Bearer Token',
-                    ),
-                    CSelectItem(
-                      value: WorkspaceAuthType.basicAuth,
-                      label: 'Basic Auth',
-                    ),
-                  ],
-                  onChanged: (type) {
-                    if (type != null) onAuthTypeChanged(type);
-                  },
+                width: 14,
+                child: selected
+                    ? Icon(
+                        CIcons.checkmark,
+                        size: 14,
+                        color: tokens.iconPrimary,
+                      )
+                    : null,
+              ),
+              const SizedBox(width: Spacing.v8px05remSpacing03),
+              Expanded(
+                child: Text(
+                  type.label,
+                  overflow: TextOverflow.ellipsis,
+                  style: TypeScale.bodyCompact01.copyWith(
+                    color: selected ? tokens.textPrimary : tokens.textSecondary,
+                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                  ),
                 ),
               ),
             ],
           ),
-          if (authType == WorkspaceAuthType.bearerToken) ...[
-            const SizedBox(height: Spacing.v16px1remSpacing05),
-            _ControlledTextField(
-              key: ValueKey(token),
-              initialValue: token,
-              hint: 'Paste bearer token here',
-              onChanged: onTokenChanged,
-            ),
-          ],
-        ],
+        ),
       ),
     );
   }

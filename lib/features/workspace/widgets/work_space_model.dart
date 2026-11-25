@@ -5,7 +5,39 @@ import '../../../core/carbon.dart';
 /// Sections exposed by the workspace activity rail.
 enum WorkspaceSidebarSection { collections, history, environments }
 
-enum WorkspaceAuthType { none, bearerToken, basicAuth }
+enum WorkspaceAuthType {
+  oauth2,
+  apiKey,
+  basicAuth,
+  bearerToken,
+  digestAuth,
+  hawkAuthentication,
+  jwtBearer,
+  oauth1,
+  akamaiEdgegrid,
+  asap,
+  awsSignature,
+  ntlmAuthentication,
+  none,
+}
+
+extension WorkspaceAuthTypeX on WorkspaceAuthType {
+  String get label => switch (this) {
+    WorkspaceAuthType.oauth2 => 'OAuth 2.0',
+    WorkspaceAuthType.apiKey => 'API Key',
+    WorkspaceAuthType.basicAuth => 'Basic Auth',
+    WorkspaceAuthType.bearerToken => 'Bearer Token',
+    WorkspaceAuthType.digestAuth => 'Digest Auth',
+    WorkspaceAuthType.hawkAuthentication => 'Hawk Authentication',
+    WorkspaceAuthType.jwtBearer => 'JWT Bearer',
+    WorkspaceAuthType.oauth1 => 'OAuth 1.0',
+    WorkspaceAuthType.akamaiEdgegrid => 'Akamai EdgeGrid',
+    WorkspaceAuthType.asap => 'ASAP (Atlassian)',
+    WorkspaceAuthType.awsSignature => 'AWS Signature',
+    WorkspaceAuthType.ntlmAuthentication => 'NTLM Authentication',
+    WorkspaceAuthType.none => 'No Auth',
+  };
+}
 
 enum WorkspaceBodyType { none, json }
 
@@ -145,6 +177,7 @@ List<WorkspaceRequest> workspaceSeedRequests() {
       name: 'Get Users List',
       method: 'GET',
       url: 'https://jsonplaceholder.typicode.com/users',
+      authType: WorkspaceAuthType.akamaiEdgegrid,
       queryParams: const [
         WorkspaceKeyValue(key: 'page', value: '1'),
         WorkspaceKeyValue(key: 'limit', value: '10'),
