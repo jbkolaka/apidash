@@ -339,7 +339,8 @@ class _AuthTabState extends State<_AuthTab> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(
+                  SizedBox(
+                    width: 280,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -413,7 +414,7 @@ class _AuthTabState extends State<_AuthTab> {
                       ],
                     ),
                   ),
-                  const SizedBox(width: Spacing.v8px05remSpacing03),
+                  const SizedBox(width: 8),
                   VerticalDivider(
                     width: 1,
                     thickness: 1,
