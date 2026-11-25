@@ -51,18 +51,32 @@ void main() {
   });
 
   testWidgets('workspace collections panel can be resized', (tester) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
     await tester.pumpWidget(const MaterialApp(home: WorkSpace()));
 
-    final before = tester
-        .ancestorOf<SizedBox>(find.byType(WorkSpaceCollectionsPanel))!
-        .width;
+    double panelWidth() => tester
+        .widget<SizedBox>(
+          find
+              .ancestor(
+                of: find.byType(WorkSpaceCollectionsPanel),
+                matching: find.byType(SizedBox),
+              )
+              .first,
+        )
+        .width!;
+
+    final before = panelWidth();
 
     await tester.drag(find.byType(CResizeHandle).first, const Offset(60, 0));
     await tester.pump();
 
-    final after = tester
-        .ancestorOf<SizedBox>(find.byType(WorkSpaceCollectionsPanel))!
-        .width;
+    final after = panelWidth();
     expect(after, greaterThan(before));
   });
 }

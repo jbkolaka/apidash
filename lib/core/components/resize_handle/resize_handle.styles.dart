@@ -1,5 +1,3 @@
-import 'package:flutter/widgets.dart';
-
 /// Layout values for the draggable panel divider.
 abstract final class CResizeHandleStyles {
   /// Width/height of the grabbable area.
