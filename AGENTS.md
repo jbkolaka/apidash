@@ -284,6 +284,7 @@ Hive boxes:
 - Mobile uses `MobileDashboard`, `PageBranch`, bottom navigation, and mobile-specific request/response pages.
 - `HomePage` switches between `DashboardSplitView` and mobile `RequestResponsePage` using `context.isMediumWindow`.
 - Reusable design primitives belong in `packages/apidash_design_system`.
+- Draggable panel resizing uses `CResizeHandle` in `lib/core/components/resize_handle/`; keep panel sizes in local widget state with clamped min/max bounds.
 - Feature widgets belong near their feature under `lib/screens/` or in `lib/widgets/` when they are truly reusable.
 - Preserve desktop and mobile behavior unless the task is explicitly platform-scoped.
 

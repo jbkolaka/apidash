@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../icon/index.dart';
+import '../resize_handle/index.dart';
 import '../../theme/variables.dart' hide Theme;
 
 import 'ui_shell.props.dart';
@@ -11,11 +12,7 @@ import 'ui_shell.styles.dart';
 /// automatically on narrow viewports. All colors come from the active
 /// theme tokens and all spacing from the design system variables.
 class CUiShell extends StatefulWidget {
-  const CUiShell({
-    super.key,
-    required this.props,
-    required this.child,
-  });
+  const CUiShell({super.key, required this.props, required this.child});
 
   /// Configuration of the left panel.
   final CUiShellProps props;
@@ -29,6 +26,7 @@ class CUiShell extends StatefulWidget {
 
 class _CUiShellState extends State<CUiShell> {
   late bool _collapsed = widget.props.collapsed;
+  double _panelWidth = CUiShellStyles.panelWidth;
 
   @override
   void didUpdateWidget(covariant CUiShell oldWidget) {
@@ -51,6 +49,17 @@ class _CUiShellState extends State<CUiShell> {
       builder: (context, constraints) {
         final isNarrow = constraints.maxWidth < CUiShellStyles.narrowViewport;
         final collapsed = _collapsed || isNarrow;
+        final maxPanelWidth = constraints.maxWidth - CUiShellStyles.railWidth;
+        final panelWidth = collapsed
+            ? CUiShellStyles.railWidth
+            : _panelWidth
+                  .clamp(
+                    CUiShellStyles.railWidth * 3,
+                    maxPanelWidth > CUiShellStyles.railWidth * 4
+                        ? maxPanelWidth
+                        : CUiShellStyles.panelWidth,
+                  )
+                  .toDouble();
 
         return Scaffold(
           backgroundColor: tokens.background,
@@ -60,8 +69,24 @@ class _CUiShellState extends State<CUiShell> {
               CUiShellLeftPanel(
                 props: widget.props,
                 collapsed: collapsed,
+                width: panelWidth,
                 onToggle: _toggleCollapsed,
               ),
+              if (!collapsed)
+                CResizeHandle(
+                  direction: CResizeHandleDirection.horizontal,
+                  semanticLabel: 'Resize navigation panel',
+                  onDrag: (delta) => setState(
+                    () => _panelWidth = (panelWidth + delta)
+                        .clamp(
+                          CUiShellStyles.railWidth * 3,
+                          maxPanelWidth > CUiShellStyles.railWidth * 4
+                              ? maxPanelWidth
+                              : CUiShellStyles.panelWidth,
+                        )
+                        .toDouble(),
+                  ),
+                ),
               Expanded(child: widget.child),
             ],
           ),
@@ -71,12 +96,13 @@ class _CUiShellState extends State<CUiShell> {
   }
 }
 
-/// The fixed left navigation panel of the [CUiShell].
+/// The left navigation panel of the [CUiShell].
 class CUiShellLeftPanel extends StatelessWidget {
   const CUiShellLeftPanel({
     super.key,
     required this.props,
     required this.collapsed,
+    required this.width,
     required this.onToggle,
   });
 
@@ -86,6 +112,9 @@ class CUiShellLeftPanel extends StatelessWidget {
   /// Whether the panel is shown as an icon only rail.
   final bool collapsed;
 
+  /// Current width of the panel.
+  final double width;
+
   /// Called when the collapse toggle is pressed.
   final VoidCallback onToggle;
 
@@ -94,7 +123,7 @@ class CUiShellLeftPanel extends StatelessWidget {
     final tokens = context.tokens;
 
     return Container(
-      width: collapsed ? CUiShellStyles.railWidth : CUiShellStyles.panelWidth,
+      width: width,
       color: tokens.layer01,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -212,9 +241,7 @@ class CUiShellLeftPanel extends StatelessWidget {
   Widget _buildFooter(BuildContext context, AppThemeTokens tokens) {
     return Container(
       padding: EdgeInsets.all(
-        collapsed
-            ? Spacing.v8px05remSpacing03
-            : Spacing.v12px075remSpacing04,
+        collapsed ? Spacing.v8px05remSpacing03 : Spacing.v12px075remSpacing04,
       ),
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: tokens.borderSubtle00)),

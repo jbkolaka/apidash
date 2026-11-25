@@ -31,6 +31,7 @@ export './popover/index.dart';
 export './progress_bar/index.dart';
 export './progress_indicator/index.dart';
 export './radio_button/index.dart';
+export './resize_handle/index.dart';
 export './sankey_chart/index.dart';
 export './search/index.dart';
 export './select/index.dart';

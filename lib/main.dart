@@ -18,24 +18,34 @@ class ApiDashApp extends StatefulWidget {
   State<ApiDashApp> createState() => _ApiDashAppState();
 }
 
-class _ApiDashAppState extends State<ApiDashApp> {
+class _ApiDashAppState extends State<ApiDashApp> with WidgetsBindingObserver {
   late final AppThemeController _themeController;
 
   @override
   void initState() {
     super.initState();
-    final isDark =
-        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
-        Brightness.dark;
+    WidgetsBinding.instance.addObserver(this);
     _themeController = AppThemeController(
-      isDark ? AppThemeMode.gray100 : AppThemeMode.white,
+      AppThemeMode.fromBrightness(
+        WidgetsBinding.instance.platformDispatcher.platformBrightness,
+      ),
     );
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _themeController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangePlatformBrightness() {
+    _themeController.setThemeMode(
+      AppThemeMode.fromBrightness(
+        WidgetsBinding.instance.platformDispatcher.platformBrightness,
+      ),
+    );
   }
 
   @override

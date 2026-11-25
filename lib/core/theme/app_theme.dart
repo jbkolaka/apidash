@@ -17,6 +17,10 @@ enum AppThemeMode {
 
   bool get isDark => brightness == Brightness.dark;
   bool get isLight => brightness == Brightness.light;
+
+  /// Primary app theme that matches a device brightness.
+  static AppThemeMode fromBrightness(Brightness brightness) =>
+      brightness == Brightness.dark ? gray100 : white;
 }
 
 /// Controller for reacting to and updating the current active theme.
