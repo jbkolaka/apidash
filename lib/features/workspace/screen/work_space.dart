@@ -32,12 +32,7 @@ class _WorkSpaceState extends State<WorkSpace> {
   String? _selectedEnvironment;
   bool _isLoading = false;
 
-  double _collectionWidth = Breakpoint.asideLeftMinWidth;
-  double? _configHeight;
-
-  static const _minCollectionWidth = 180.0;
-  static const _maxCollectionWidth = 420.0;
-  static const _minPaneHeight = 120.0;
+  static const _collectionWidth = 320.0;
 
   WorkspaceRequest? get _activeRequest =>
       _openTabs.isNotEmpty && _activeTabIndex < _openTabs.length
@@ -85,17 +80,6 @@ class _WorkSpaceState extends State<WorkSpace> {
                     onEnvironmentSelected: _selectEnvironment,
                   ),
                 ),
-                CResizeHandle(
-                  direction: CResizeHandleDirection.horizontal,
-                  semanticLabel: 'Resize collections panel',
-                  onDrag: (delta) => setState(
-                    () => _collectionWidth = _clamp(
-                      _collectionWidth + delta,
-                      _minCollectionWidth,
-                      _maxCollectionWidth,
-                    ),
-                  ),
-                ),
                 Expanded(child: _buildWorkbench(context)),
               ],
             ),
@@ -131,86 +115,47 @@ class _WorkSpaceState extends State<WorkSpace> {
           onSave: _saveActiveRequest,
         ),
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final maxHeight = constraints.maxHeight;
-              final available = maxHeight - CResizeHandleStyles.hitThickness;
-              final paneMax = available > _minPaneHeight * 2
-                  ? available - _minPaneHeight
-                  : available / 2;
-              final configHeight = _clamp(
-                _configHeight ?? available / 2,
-                _minPaneHeight < paneMax ? _minPaneHeight : 0,
-                paneMax,
-              );
-
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  SizedBox(
-                    height: configHeight,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: context.tokens.layer01,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: context.tokens.borderSubtle01,
-                          ),
-                        ),
-                      ),
-                      child: WorkSpaceConfigTabs(
-                        request: request,
-                        onQueryParamsChanged: (items) => _updateActiveRequest(
-                          request.copyWith(queryParams: items),
-                        ),
-                        onHeadersChanged: (items) => _updateActiveRequest(
-                          request.copyWith(headers: items),
-                        ),
-                        onAuthTypeChanged: (type) => _updateActiveRequest(
-                          request.copyWith(authType: type),
-                        ),
-                        onBearerTokenChanged: (token) => _updateActiveRequest(
-                          request.copyWith(bearerToken: token),
-                        ),
-                        onBodyTypeChanged: (type) => _updateActiveRequest(
-                          request.copyWith(bodyType: type),
-                        ),
-                        onBodyChanged: (body) => _updateActiveRequest(
-                          request.copyWith(rawBody: body),
-                        ),
-                      ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: context.tokens.layer01,
+                    border: Border(
+                      bottom: BorderSide(color: context.tokens.borderSubtle01),
                     ),
                   ),
-                  CResizeHandle(
-                    direction: CResizeHandleDirection.vertical,
-                    semanticLabel: 'Resize request and response panels',
-                    onDrag: (delta) => setState(
-                      () => _configHeight = _clamp(
-                        configHeight + delta,
-                        _minPaneHeight < paneMax ? _minPaneHeight : 0,
-                        paneMax,
-                      ),
+                  child: WorkSpaceConfigTabs(
+                    request: request,
+                    onQueryParamsChanged: (items) => _updateActiveRequest(
+                      request.copyWith(queryParams: items),
                     ),
-                  ),
-                  Expanded(
-                    child: WorkSpaceResponseViewer(
-                      response: _responses[request.id],
+                    onHeadersChanged: (items) =>
+                        _updateActiveRequest(request.copyWith(headers: items)),
+                    onAuthTypeChanged: (type) =>
+                        _updateActiveRequest(request.copyWith(authType: type)),
+                    onBearerTokenChanged: (token) => _updateActiveRequest(
+                      request.copyWith(bearerToken: token),
                     ),
+                    onBodyTypeChanged: (type) =>
+                        _updateActiveRequest(request.copyWith(bodyType: type)),
+                    onBodyChanged: (body) =>
+                        _updateActiveRequest(request.copyWith(rawBody: body)),
                   ),
-                ],
-              );
-            },
+                ),
+              ),
+              Expanded(
+                child: WorkSpaceResponseViewer(
+                  response: _responses[request.id],
+                ),
+              ),
+            ],
           ),
         ),
       ],
     );
   }
-
-  double _clamp(double value, double min, double max) => value < min
-      ? min
-      : value > max
-      ? max
-      : value;
 
   void _selectEnvironment(String environment) {
     setState(() => _selectedEnvironment = environment);

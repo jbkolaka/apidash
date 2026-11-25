@@ -147,7 +147,7 @@ The core HTTP request/response models (`HttpRequestModel`, `HttpResponseModel`) 
 - Carbon-style components live in `lib/core/components/` (`CButton`, `CTextField`, `CModal`, and related widgets). Their styles resolve colors through `AppThemeTokens`, so the same widget renders correctly in White and Gray 100.
 - The `CUiShellHeader` supports an optional Carbon menu (`menuItems`, `menuIcon`) plus a trailing widget slot; `CTypography` (in `lib/core/shared/styles/variables/type.style.dart`) provides the Carbon type scale and is exported with the spacing variables.
 - Shared dialogs use `showCModal` with `CModalAction`; new app chrome should prefer core components over raw Material equivalents when an equivalent exists.
-- Draggable panel dividers use `CResizeHandle` (`lib/core/components/resize_handle/`). The shell navigation panel and the workspace collections, request, and response panels keep their sizes in local widget state and clamp them to usable minimums/maximums.
+- Draggable panel dividers use `CResizeHandle` (`lib/core/components/resize_handle/`). The shell navigation panel keeps its width in local widget state with clamped min/max bounds. The workspace workbench uses a fixed collections width and equal request/response panes; it does not expose mouse resize handles.
 
 ## Persistent Storage (Hive)
 

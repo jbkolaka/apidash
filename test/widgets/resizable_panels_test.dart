@@ -50,7 +50,7 @@ void main() {
     expect(after, greaterThan(before));
   });
 
-  testWidgets('workspace collections panel can be resized', (tester) async {
+  testWidgets('workspace panels use a fixed layout', (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -59,6 +59,8 @@ void main() {
     });
 
     await tester.pumpWidget(const MaterialApp(home: WorkSpace()));
+
+    expect(find.byType(CResizeHandle), findsNothing);
 
     double panelWidth() => tester
         .widget<SizedBox>(
@@ -72,11 +74,14 @@ void main() {
         .width!;
 
     final before = panelWidth();
+    expect(before, greaterThanOrEqualTo(300));
 
-    await tester.drag(find.byType(CResizeHandle).first, const Offset(60, 0));
+    await tester.drag(
+      find.byType(WorkSpaceCollectionsPanel),
+      const Offset(60, 0),
+    );
     await tester.pump();
 
-    final after = panelWidth();
-    expect(after, greaterThan(before));
+    expect(panelWidth(), before);
   });
 }
