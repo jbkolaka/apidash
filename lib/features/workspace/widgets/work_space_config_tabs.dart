@@ -404,6 +404,7 @@ class _AuthTabState extends State<_AuthTab> {
                                 _ControlledTextField(
                                   key: ValueKey(widget.token),
                                   initialValue: widget.token,
+                                  semanticLabel: 'Token',
                                   hint: 'Paste bearer token here',
                                   onChanged: widget.onTokenChanged,
                                 ),
@@ -735,11 +736,13 @@ class _ControlledTextField extends StatefulWidget {
   const _ControlledTextField({
     super.key,
     required this.initialValue,
+    required this.semanticLabel,
     required this.hint,
     required this.onChanged,
   });
 
   final String initialValue;
+  final String semanticLabel;
   final String hint;
   final ValueChanged<String> onChanged;
 
@@ -766,6 +769,7 @@ class _ControlledTextFieldState extends State<_ControlledTextField> {
   Widget build(BuildContext context) {
     return CTextField(
       controller: _controller,
+      semanticLabel: widget.semanticLabel,
       hint: widget.hint,
       onChanged: widget.onChanged,
     );
@@ -799,6 +803,7 @@ class _KeyValueRow extends StatelessWidget {
           flex: 2,
           child: _ControlledTextField(
             initialValue: item.key,
+            semanticLabel: 'Key',
             hint: 'Key',
             onChanged: (value) => onChanged(item.copyWith(key: value)),
           ),
@@ -808,6 +813,7 @@ class _KeyValueRow extends StatelessWidget {
           flex: 3,
           child: _ControlledTextField(
             initialValue: item.value,
+            semanticLabel: 'Value',
             hint: 'Value',
             onChanged: (value) => onChanged(item.copyWith(value: value)),
           ),

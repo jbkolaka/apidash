@@ -66,6 +66,7 @@ class _RenameDialogContentState extends State<RenameDialogContent> {
           child: CTextField(
             autofocus: true,
             controller: controller,
+            semanticLabel: 'New name',
             hint: "Enter new name",
           ),
         ),

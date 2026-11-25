@@ -109,6 +109,7 @@ class _WorkSpaceUrlBarState extends State<WorkSpaceUrlBar> {
                         child: CTextField(
                           hideBorder: true,
                           controller: _controller,
+                          semanticLabel: 'Request URL',
                           hint: 'Enter URL or paste text',
                           onChanged: widget.onUrlChanged,
                           onSubmitted: (_) => widget.onSend(),
