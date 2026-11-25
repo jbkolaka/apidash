@@ -95,17 +95,14 @@ class _WorkSpaceCollectionsPanelState extends State<WorkSpaceCollectionsPanel> {
   }
 
   Widget _buildCollections(BuildContext context) {
-    final collections = widget.collections.where((collection) {
-      if (_filter.isEmpty) return true;
-      if (collection.name.toLowerCase().contains(_filter)) return true;
-      return collection.requests.any(
-        (request) => request.name.toLowerCase().contains(_filter),
-      );
-    }).toList();
-
-    if (collections.isEmpty) {
-      return _emptyState(context);
-    }
+    const resourceSections = [
+      'Documents',
+      'Specs',
+      'Mocks',
+      'Datasets',
+      'Toolsets',
+      'Flows',
+    ];
 
     return SingleChildScrollView(
       child: CAccordion(
@@ -114,23 +111,59 @@ class _WorkSpaceCollectionsPanelState extends State<WorkSpaceCollectionsPanel> {
           flush: true,
           allowMultiple: true,
           items: [
-            for (final collection in collections)
+            CAccordionItem(
+              title: 'Collections',
+              initiallyExpanded: true,
+              content: _buildCollectionGroups(context),
+            ),
+            CAccordionItem(
+              title: 'Environments',
+              content: _buildEnvironmentItems(context),
+            ),
+            for (final section in resourceSections)
               CAccordionItem(
-                title: collection.name,
-                initiallyExpanded: true,
-                content: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    for (final request in collection.requests)
-                      _RequestTile(
-                        request: request,
-                        onTap: () => widget.onOpenRequest(request),
-                      ),
-                  ],
-                ),
+                title: section,
+                content: _emptyState(context, 'No $section found'),
               ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCollectionGroups(BuildContext context) {
+    final collections = widget.collections.where((collection) {
+      if (_filter.isEmpty) return true;
+      if (collection.name.toLowerCase().contains(_filter)) return true;
+      return collection.requests.any(
+        (request) => request.name.toLowerCase().contains(_filter),
+      );
+    }).toList();
+
+    if (collections.isEmpty) return _emptyState(context);
+
+    return CAccordion(
+      props: CAccordionProps(
+        size: CAccordionSize.sm,
+        flush: true,
+        allowMultiple: true,
+        items: [
+          for (final collection in collections)
+            CAccordionItem(
+              title: collection.name,
+              initiallyExpanded: true,
+              content: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final request in collection.requests)
+                    _RequestTile(
+                      request: request,
+                      onTap: () => widget.onOpenRequest(request),
+                    ),
+                ],
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -166,6 +199,10 @@ class _WorkSpaceCollectionsPanelState extends State<WorkSpaceCollectionsPanel> {
   }
 
   Widget _buildEnvironments(BuildContext context) {
+    return _buildEnvironmentItems(context);
+  }
+
+  Widget _buildEnvironmentItems(BuildContext context) {
     final items = widget.environments
         .where(
           (environment) =>
@@ -193,13 +230,16 @@ class _WorkSpaceCollectionsPanelState extends State<WorkSpaceCollectionsPanel> {
     );
   }
 
-  Widget _emptyState(BuildContext context) {
+  Widget _emptyState(
+    BuildContext context, [
+    String message = 'No items found',
+  ]) {
     final tokens = context.tokens;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(Spacing.v16px1remSpacing05),
         child: Text(
-          'No items found',
+          message,
           style: TypeScale.bodyCompact01.copyWith(color: tokens.textSecondary),
         ),
       ),
