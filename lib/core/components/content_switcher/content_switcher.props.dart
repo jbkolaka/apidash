@@ -33,6 +33,7 @@ class CContentSwitcherProps {
     this.size = CContentSwitcherSize.md,
     this.lowContrast = true,
     this.expand = true,
+    this.showLabels = true,
     this.onSelectionChanged,
   });
 
@@ -50,6 +51,9 @@ class CContentSwitcherProps {
 
   /// Gives each option equal width when true.
   final bool expand;
+
+  /// Whether to render option labels. Set false for icon-only switchers.
+  final bool showLabels;
 
   /// Called after the selected option changes.
   final ValueChanged<int>? onSelectionChanged;
