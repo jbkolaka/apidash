@@ -1,6 +1,6 @@
-import '../../shared/index.dart';
 import 'package:flutter/widgets.dart';
+import '../../theme/app_theme_tokens.dart';
 
-abstract class CBreadcrumbStyles {
-  static const Color slashColor = CColors.gray10;
+abstract final class CBreadcrumbStyles {
+  static Color slashColor(AppThemeTokens tokens) => tokens.textPrimary;
 }
