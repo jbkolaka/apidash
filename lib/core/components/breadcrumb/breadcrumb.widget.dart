@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import '../../theme/app_theme.dart';
 
 import '../overflow_menu/index.dart';
 import '../text/index.dart';
@@ -14,34 +15,30 @@ typedef _Styles = CBreadcrumbStyles;
 /// navigate back through them.
 class CBreadcrumb extends StatelessWidget {
   CBreadcrumb({
-    Key? key,
+    super.key,
     required List<CBreadcrumbItem> children,
     bool noTrailingSlash = true,
     int breadcrumbsLimit = 3,
-  })  : assert(breadcrumbsLimit >= 3),
-        props = CBreadcrumbProps(
-          children: children,
-          noTrailingSlash: noTrailingSlash,
-          breadcrumbsLimit: breadcrumbsLimit,
-        ),
-        super(key: key);
+  }) : assert(breadcrumbsLimit >= 3),
+       props = CBreadcrumbProps(
+         children: children,
+         noTrailingSlash: noTrailingSlash,
+         breadcrumbsLimit: breadcrumbsLimit,
+       );
 
   final CBreadcrumbProps props;
 
   final _menu = COverflowMenuController();
   final _menuKey = GlobalKey();
 
-  List<Widget> _displayAllBreadcrumbs() {
+  List<Widget> _displayAllBreadcrumbs(BuildContext context) {
     final divider = CText(
       data: '/',
-      style: TextStyle(
-        color: _Styles.slashColor,
-        fontSize: 14,
-      ),
+      style: TextStyle(color: _Styles.slashColor(context.tokens), fontSize: 14),
     );
 
     final items = [
-      for (final item in props.children) ...[item, divider]
+      for (final item in props.children) ...[item, divider],
     ];
 
     if (props.noTrailingSlash) items.removeLast();
@@ -49,7 +46,7 @@ class CBreadcrumb extends StatelessWidget {
     return items;
   }
 
-  List<Widget> _displayOverflowedBreadcrumbs() {
+  List<Widget> _displayOverflowedBreadcrumbs(BuildContext context) {
     var leadingItems = <CBreadcrumbItem>[];
     var hiddenItems = <CBreadcrumbItem>[];
     var trailingItems = <CBreadcrumbItem>[];
@@ -77,10 +74,7 @@ class CBreadcrumb extends StatelessWidget {
 
     final divider = CText(
       data: '/',
-      style: TextStyle(
-        color: _Styles.slashColor,
-        fontSize: 14,
-      ),
+      style: TextStyle(color: _Styles.slashColor(context.tokens), fontSize: 14),
     );
 
     final items = <Widget>[
@@ -96,17 +90,15 @@ class CBreadcrumb extends StatelessWidget {
   }
 
   List<COverflowMenuItem> _buildMenuItems(List<CBreadcrumbItem> items) {
-    return items.map(
-      (item) {
-        return COverflowMenuItem(
-          child: item.props.child,
-          onTap: () {
-            item.props.onTap();
-            _menu.close();
-          },
-        );
-      },
-    ).toList();
+    return items.map((item) {
+      return COverflowMenuItem(
+        child: item.props.child,
+        onTap: () {
+          item.props.onTap();
+          _menu.close();
+        },
+      );
+    }).toList();
   }
 
   @override
@@ -114,8 +106,8 @@ class CBreadcrumb extends StatelessWidget {
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       children: props.children.length > props.breadcrumbsLimit
-          ? _displayOverflowedBreadcrumbs()
-          : _displayAllBreadcrumbs(),
+          ? _displayOverflowedBreadcrumbs(context)
+          : _displayAllBreadcrumbs(context),
     );
   }
 }
