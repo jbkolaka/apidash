@@ -164,26 +164,28 @@ class _CContentSwitcherState extends State<CContentSwitcher> {
                   ),
                   child: option.icon!,
                 ),
-                const SizedBox(width: CContentSwitcherStyles.iconGap),
+                if (props.showLabels)
+                  const SizedBox(width: CContentSwitcherStyles.iconGap),
               ],
-              Flexible(
-                child: Text(
-                  option.label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: option.enabled
-                        ? (selected
-                              ? CContentSwitcherStyles.foreground(tokens)
-                              : CContentSwitcherStyles.inactiveForeground(
-                                  tokens,
-                                ))
-                        : tokens.textDisabled,
-                    fontSize: 14,
-                    fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              if (props.showLabels)
+                Flexible(
+                  child: Text(
+                    option.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: option.enabled
+                          ? (selected
+                                ? CContentSwitcherStyles.foreground(tokens)
+                                : CContentSwitcherStyles.inactiveForeground(
+                                    tokens,
+                                  ))
+                          : tokens.textDisabled,
+                      fontSize: 14,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
         ),
