@@ -73,6 +73,26 @@ class _CAccordionState extends State<CAccordion> {
       CAccordionSize.lg => CAccordionStyles.largeHeaderHeight,
     };
 
+    final chevron = AnimatedRotation(
+      turns: expanded ? 0.5 : 0,
+      duration: CAccordionStyles.animationDuration,
+      child: Icon(
+        CIcons.chevronDown,
+        size: CAccordionStyles.iconSize,
+        color: disabled ? tokens.iconSecondary : tokens.iconPrimary,
+      ),
+    );
+    final gap = const SizedBox(width: Spacing.v8px05remSpacing03);
+    final title = Expanded(
+      child: Text(
+        widget.props.ordered ? '${index + 1}. ${item.title}' : item.title,
+        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          color: disabled ? tokens.textDisabled : tokens.textPrimary,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+
     return DecoratedBox(
       decoration: BoxDecoration(
         color: tokens.background,
@@ -97,31 +117,11 @@ class _CAccordionState extends State<CAccordion> {
                 child: Padding(
                   padding: CAccordionStyles.itemPadding,
                   child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          widget.props.ordered ? '${index + 1}. ${item.title}' : item.title,
-                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: disabled
-                                ? tokens.textDisabled
-                                : tokens.textPrimary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: Spacing.v8px05remSpacing03),
-                      AnimatedRotation(
-                        turns: expanded ? 0.5 : 0,
-                        duration: CAccordionStyles.animationDuration,
-                        child: Icon(
-                          CIcons.chevronDown,
-                          size: CAccordionStyles.iconSize,
-                          color: disabled
-                              ? tokens.iconSecondary
-                              : tokens.iconPrimary,
-                        ),
-                      ),
-                    ],
+                    children:
+                        widget.props.iconPosition ==
+                            CAccordionIconPosition.leading
+                        ? [chevron, gap, title]
+                        : [title, gap, chevron],
                   ),
                 ),
               ),
