@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import '../../shared/index.dart';
+import '../../theme/app_theme.dart';
 
 import 'breadcrumbitem.props.dart';
 import 'breadcrumbitem.styles.dart';
@@ -10,16 +11,15 @@ typedef _Styles = CBreadcrumbItemStyles;
 /// location or an entity it links to.
 class CBreadcrumbItem extends StatefulWidget {
   CBreadcrumbItem({
-    Key? key,
+    super.key,
     required Widget child,
     required VoidCallback onTap,
     bool isCurrentPage = false,
-  })  : props = CBreadcrumbItemProps(
-          child: child,
-          isCurrentPage: isCurrentPage,
-          onTap: onTap,
-        ),
-        super(key: key);
+  }) : props = CBreadcrumbItemProps(
+         child: child,
+         isCurrentPage: isCurrentPage,
+         onTap: onTap,
+       );
 
   final CBreadcrumbItemProps props;
 
@@ -43,6 +43,7 @@ class CBreadcrumbItemState extends State<CBreadcrumbItem> {
   @override
   Widget build(BuildContext context) {
     _setStateVariables();
+    final tokens = context.tokens;
 
     return GestureDetector(
       onTap: widget.props.onTap,
@@ -51,7 +52,7 @@ class CBreadcrumbItemState extends State<CBreadcrumbItem> {
       onTapCancel: () => setState(() => _focused = false),
       child: AnimatedContainer(
         decoration: BoxDecoration(
-          color: _Styles.backgroundColor[_state],
+          color: _Styles.backgroundColor(tokens, _state),
           borderRadius: BorderRadius.circular(_Styles.borderRadius),
         ),
         margin: EdgeInsets.symmetric(horizontal: _Styles.itemSpacing),
@@ -63,7 +64,7 @@ class CBreadcrumbItemState extends State<CBreadcrumbItem> {
         curve: _Styles.animation['curve'],
         child: DefaultTextStyle(
           style: TextStyle(
-            color: _Styles.textColor[widget.props.isCurrentPage],
+            color: _Styles.textColor(tokens, widget.props.isCurrentPage),
           ),
           child: widget.props.child,
         ),
