@@ -3,6 +3,28 @@ import 'package:flutter/widgets.dart';
 /// Node selection behavior for [CTreeView].
 enum CTreeViewSelectionMode { none, single, multiple }
 
+/// A trailing action rendered on a [CTreeViewNode] row.
+class CTreeViewAction {
+  const CTreeViewAction({
+    required this.label,
+    required this.icon,
+    this.onTap,
+    this.disabled = false,
+  });
+
+  /// Accessible label and tooltip text for the action.
+  final String label;
+
+  /// Icon widget displayed at the end of the row.
+  final Widget icon;
+
+  /// Callback executed when the action is tapped.
+  final VoidCallback? onTap;
+
+  /// Whether the action is non-interactive.
+  final bool disabled;
+}
+
 /// A node rendered by [CTreeView].
 class CTreeViewNode {
   const CTreeViewNode({
@@ -10,6 +32,7 @@ class CTreeViewNode {
     required this.label,
     this.children = const <CTreeViewNode>[],
     this.icon,
+    this.actions = const <CTreeViewAction>[],
     this.disabled = false,
     this.expandedByDefault = false,
   });
@@ -25,6 +48,9 @@ class CTreeViewNode {
 
   /// Optional icon displayed before the label.
   final Widget? icon;
+
+  /// Trailing actions displayed at the end of the row.
+  final List<CTreeViewAction> actions;
 
   /// Whether the node can be selected or activated.
   final bool disabled;
@@ -45,6 +71,7 @@ class CTreeViewProps {
     this.initialExpandedIds = const <String>{},
     this.size = CTreeViewSize.md,
     this.maxHeight,
+    this.showActionsOnHover = false,
     this.onSelectionChanged,
     this.onActiveChanged,
     this.onExpandedChanged,
@@ -78,6 +105,9 @@ class CTreeViewProps {
 
   /// Optional maximum tree height. Overflowing trees scroll vertically.
   final double? maxHeight;
+
+  /// Renders [CTreeViewNode.actions] only while the row is hovered.
+  final bool showActionsOnHover;
 
   /// Called when the set of selected node IDs changes.
   final ValueChanged<Set<String>>? onSelectionChanged;
