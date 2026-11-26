@@ -23,6 +23,7 @@ class CAccordionProps {
     this.disabled = false,
     this.ordered = false,
     this.flush = false,
+    this.iconPosition = CAccordionIconPosition.leading,
     this.size = CAccordionSize.md,
     this.onExpansionChanged,
   });
@@ -32,9 +33,13 @@ class CAccordionProps {
   final bool disabled;
   final bool ordered;
   final bool flush;
+  final CAccordionIconPosition iconPosition;
   final CAccordionSize size;
   final ValueChanged<CAccordionExpansion>? onExpansionChanged;
 }
+
+/// Side of the header on which the expansion chevron is shown.
+enum CAccordionIconPosition { leading, trailing }
 
 /// Header and body sizing for [CAccordion].
 enum CAccordionSize { sm, md, lg }
