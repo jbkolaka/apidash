@@ -148,6 +148,7 @@ The core HTTP request/response models (`HttpRequestModel`, `HttpResponseModel`) 
 - The `CUiShellHeader` supports an optional Carbon menu (`menuItems`, `menuIcon`) plus a trailing widget slot; `CTypography` (in `lib/core/shared/styles/variables/type.style.dart`) provides the Carbon type scale and is exported with the spacing variables.
 - Shared dialogs use `showCModal` with `CModalAction`; new app chrome should prefer core components over raw Material equivalents when an equivalent exists.
 - Draggable panel dividers use `CResizeHandle` (`lib/core/components/resize_handle/`). The shell navigation panel keeps its width in local widget state with clamped min/max bounds. The workspace workbench uses a fixed collections width and equal request/response panes; it does not expose mouse resize handles.
+- `WorkSpaceCollectionsPanel` (`lib/features/workspace/widgets/work_space_collections_panel.dart`) owns filter, star, and view-selection state. Its header, menu definitions, row actions, method tag, and collection/services trees are split into focused widgets under `lib/features/workspace/widgets/work_space_collections/`.
 
 ## Persistent Storage (Hive)
 
