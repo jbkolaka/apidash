@@ -78,15 +78,7 @@ class _CTreeViewState extends State<CTreeView> {
         onFocusChange: (_) => setState(() {}),
         onKeyEvent: _handleKeyEvent,
         child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: CTreeViewStyles.background(tokens),
-            border: Border.all(
-              color: _focusNode.hasFocus
-                  ? CTreeViewStyles.focus(tokens)
-                  : Colors.transparent,
-              width: CTreeViewStyles.focusWidth,
-            ),
-          ),
+          decoration: BoxDecoration(color: CTreeViewStyles.background(tokens)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
@@ -146,6 +138,23 @@ class _CTreeViewState extends State<CTreeView> {
           ),
         ),
       ),
+      if (node.actions.isNotEmpty)
+        SizedBox(
+          width:
+              CTreeViewStyles.iconGap +
+              node.actions.length * CTreeViewStyles.disclosureSize,
+          height: rowHeight,
+          child: (!widget.props.showActionsOnHover || hovered)
+              ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(width: CTreeViewStyles.iconGap),
+                    for (final action in node.actions)
+                      _buildAction(node, action, tokens),
+                  ],
+                )
+              : null,
+        ),
     ];
 
     final row = Semantics(
@@ -260,6 +269,41 @@ class _CTreeViewState extends State<CTreeView> {
               child: checked
                   ? Icon(Icons.check, size: 12, color: tokens.textOnColor)
                   : null,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAction(
+    CTreeViewNode node,
+    CTreeViewAction action,
+    AppThemeTokens tokens,
+  ) {
+    final enabled = !node.disabled && !action.disabled;
+    return Tooltip(
+      message: action.label,
+      child: Semantics(
+        button: true,
+        enabled: enabled,
+        label: action.label,
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: enabled ? action.onTap : null,
+          child: SizedBox(
+            width: CTreeViewStyles.disclosureSize,
+            height: CTreeViewStyles.rowHeight(widget.props.size),
+            child: Center(
+              child: IconTheme(
+                data: IconThemeData(
+                  size: CTreeViewStyles.iconSize,
+                  color: enabled
+                      ? CTreeViewStyles.icon(tokens)
+                      : CTreeViewStyles.textDisabled(tokens),
+                ),
+                child: action.icon,
+              ),
             ),
           ),
         ),
