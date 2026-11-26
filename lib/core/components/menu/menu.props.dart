@@ -34,6 +34,7 @@ class CMenuItem extends CMenuEntry {
     this.shortcut,
     this.kind = CMenuItemKind.primary,
     this.disabled = false,
+    this.hasExternalIcon = false,
     this.onTap,
     this.value,
   });
@@ -52,6 +53,9 @@ class CMenuItem extends CMenuEntry {
 
   /// Whether this item is non-interactive.
   final bool disabled;
+
+  /// Whether to show a trailing external-link icon.
+  final bool hasExternalIcon;
 
   /// Callback executed when the item is tapped.
   final VoidCallback? onTap;
@@ -99,6 +103,13 @@ class CMenuDivider extends CMenuEntry {
   const CMenuDivider();
 }
 
+/// Non-interactive helper text rendered inside a menu.
+class CMenuCaption extends CMenuEntry {
+  const CMenuCaption({required this.text});
+
+  final String text;
+}
+
 /// A menu item that cascades into a nested submenu.
 class CSubmenu extends CMenuEntry {
   const CSubmenu({
@@ -121,6 +132,49 @@ class CSubmenu extends CMenuEntry {
   final bool disabled;
 }
 
+/// A read-only Carbon Menu usage/spec chart built from Carbon-native entries.
+///
+/// The chart maps Carbon Menu concepts to this Flutter implementation using
+/// only actions, dividers, selectable items, disabled items, danger intent,
+/// and one nested submenu. It intentionally excludes non-Carbon additions
+/// such as search fields and captions.
+abstract final class CMenuSpecChart {
+  /// Carbon-native entries describing the CMenu surface.
+  static const List<CMenuEntry> entries = [
+    CMenuItem(label: 'Carbon Menu → CMenu', value: 'component'),
+    CMenuDivider(),
+    CMenuItem(label: 'MenuItem → CMenuItem', value: 'item'),
+    CMenuSelectableItem(
+      label: 'MenuSelectableItem → CMenuSelectableItem',
+      selected: true,
+      value: 'selectable',
+    ),
+    CMenuDivider(),
+    CMenuItem(
+      label: 'Unavailable action → disabled',
+      disabled: true,
+      value: 'disabled',
+    ),
+    CMenuItem(
+      label: 'Destructive action → danger',
+      kind: CMenuItemKind.danger,
+      value: 'danger',
+    ),
+    CSubmenu(
+      label: 'Nested actions → CSubmenu',
+      items: [
+        CMenuItem(label: 'First action', value: 'submenu.first'),
+        CMenuItem(label: 'Second action', value: 'submenu.second'),
+      ],
+    ),
+  ];
+
+  /// Props for rendering the chart as a [CMenu].
+  static CMenuProps props({CMenuSize size = CMenuSize.md}) {
+    return CMenuProps(items: entries, size: size, minWidth: 220, maxWidth: 320);
+  }
+}
+
 /// Configuration properties for a [CMenu].
 class CMenuProps {
   const CMenuProps({
@@ -130,6 +184,9 @@ class CMenuProps {
     this.maxWidth = 320.0,
     this.elevation = 4.0,
     this.closeOnSelect = true,
+    this.searchable = false,
+    this.searchLabel = 'Search menu items',
+    this.searchPlaceholder = 'Search...',
     this.onSelect,
   });
 
@@ -150,6 +207,15 @@ class CMenuProps {
 
   /// Whether the menu automatically dismisses when an action item is tapped.
   final bool closeOnSelect;
+
+  /// Shows a search field above the entries that filters them by label.
+  final bool searchable;
+
+  /// Accessible label for the search field when [searchable] is true.
+  final String searchLabel;
+
+  /// Placeholder for the search field when [searchable] is true.
+  final String searchPlaceholder;
 
   /// Callback invoked when any value is selected.
   final ValueChanged<dynamic>? onSelect;
