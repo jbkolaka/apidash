@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import '../../theme/variables.dart' hide Theme, Radius;
+import '../icon/index.dart';
+import '../search/index.dart';
 
 import 'menu.props.dart';
 import 'menu.styles.dart';
@@ -8,11 +11,15 @@ import 'menu.styles.dart';
 ///
 /// Can be used as a standalone inline menu panel, or displayed as an anchored
 /// floating dropdown or context menu using [CMenu.showAtPosition] or [CMenuAnchor].
-class CMenu extends StatelessWidget {
+/// Use [CMenu.usageSpecChart] for a Carbon-only usage/spec chart.
+class CMenu extends StatefulWidget {
   const CMenu({super.key, required this.props});
 
   /// The configuration and entries of this menu.
   final CMenuProps props;
+
+  @override
+  State<CMenu> createState() => _CMenuState();
 
   /// Shows the menu as a floating modal popup anchored at [position].
   static Future<T?> showAtPosition<T>({
@@ -41,14 +48,24 @@ class CMenu extends StatelessWidget {
     );
   }
 
+  /// Builds the Carbon Menu usage/spec chart from Carbon-native entries only.
+  static CMenu usageSpecChart({CMenuSize size = CMenuSize.md}) {
+    return CMenu(props: CMenuSpecChart.props(size: size));
+  }
+}
+
+class _CMenuState extends State<CMenu> {
+  String _query = '';
+
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
+    final visibleItems = _visibleItems();
 
     return Container(
       constraints: BoxConstraints(
-        minWidth: props.minWidth,
-        maxWidth: props.maxWidth,
+        minWidth: widget.props.minWidth,
+        maxWidth: widget.props.maxWidth,
       ),
       decoration: BoxDecoration(
         color: CMenuStyles.backgroundColor(tokens),
@@ -56,7 +73,7 @@ class CMenu extends StatelessWidget {
           color: CMenuStyles.borderColor(tokens),
           width: CMenuStyles.borderWidth,
         ),
-        boxShadow: props.elevation > 0
+        boxShadow: widget.props.elevation > 0
             ? [
                 BoxShadow(
                   color: Colors.black.withValues(alpha: 0.16),
@@ -71,12 +88,57 @@ class CMenu extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            for (int i = 0; i < props.items.length; i++)
-              _buildEntry(context, props.items[i], tokens),
+            if (widget.props.searchable) ...[
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
+                child: CSearch(
+                  size: CSearchSize.sm,
+                  label: widget.props.searchLabel,
+                  placeholder: widget.props.searchPlaceholder,
+                  autoFocus: true,
+                  onChange: (value) => setState(() => _query = value),
+                ),
+              ),
+            ],
+            if (visibleItems.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: CMenuStyles.horizontalPadding,
+                  vertical: CMenuStyles.dividerMargin,
+                ),
+                child: Text(
+                  'No results found',
+                  style: TextStyle(
+                    fontSize: CMenuStyles.fontSize(widget.props.size),
+                    color: tokens.textSecondary,
+                  ),
+                ),
+              )
+            else
+              for (var i = 0; i < visibleItems.length; i++)
+                _buildEntry(context, visibleItems[i], tokens),
           ],
         ),
       ),
     );
+  }
+
+  List<CMenuEntry> _visibleItems() {
+    if (!widget.props.searchable || _query.trim().isEmpty) {
+      return widget.props.items;
+    }
+    final query = _query.trim().toLowerCase();
+    String labelOf(CMenuEntry entry) => switch (entry) {
+      CMenuItem() => entry.label,
+      CMenuSelectableItem() => entry.label,
+      CSubmenu() => entry.label,
+      CMenuDivider() => '',
+      CMenuCaption() => entry.text,
+      _ => '',
+    };
+    return widget.props.items
+        .where((entry) => labelOf(entry).toLowerCase().contains(query))
+        .toList();
   }
 
   Widget _buildEntry(
@@ -90,14 +152,28 @@ class CMenu extends StatelessWidget {
         margin: const EdgeInsets.symmetric(vertical: CMenuStyles.dividerMargin),
         color: CMenuStyles.borderColor(tokens),
       );
+    } else if (entry is CMenuCaption) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(
+          horizontal: CMenuStyles.horizontalPadding,
+          vertical: CMenuStyles.dividerMargin,
+        ),
+        child: Text(
+          entry.text,
+          style: TextStyle(
+            fontSize: CMenuStyles.fontSize(widget.props.size) - 2,
+            color: tokens.textSecondary,
+          ),
+        ),
+      );
     } else if (entry is CMenuItem) {
       return _CMenuItemWidget(
         item: entry,
-        size: props.size,
+        size: widget.props.size,
         tokens: tokens,
         onSelect: (val) {
-          props.onSelect?.call(val);
-          if (props.closeOnSelect) {
+          widget.props.onSelect?.call(val);
+          if (widget.props.closeOnSelect) {
             final nav = Navigator.maybeOf(context);
             if (nav != null && nav.canPop()) {
               nav.pop(val);
@@ -108,20 +184,20 @@ class CMenu extends StatelessWidget {
     } else if (entry is CMenuSelectableItem) {
       return _CMenuSelectableItemWidget(
         item: entry,
-        size: props.size,
+        size: widget.props.size,
         tokens: tokens,
         onSelect: (val) {
-          props.onSelect?.call(val);
+          widget.props.onSelect?.call(val);
         },
       );
     } else if (entry is CSubmenu) {
       return _CSubmenuWidget(
         submenu: entry,
-        size: props.size,
+        size: widget.props.size,
         tokens: tokens,
         onChildSelect: (val) {
-          props.onSelect?.call(val);
-          if (props.closeOnSelect) {
+          widget.props.onSelect?.call(val);
+          if (widget.props.closeOnSelect) {
             final nav = Navigator.maybeOf(context);
             if (nav != null && nav.canPop()) {
               nav.pop(val);
@@ -239,6 +315,16 @@ class _CMenuItemWidgetState extends State<_CMenuItemWidget> {
                   ),
                 ),
               ],
+              if (widget.item.hasExternalIcon) ...[
+                const SizedBox(width: CMenuStyles.trailingSpacing),
+                IconTheme(
+                  data: IconThemeData(
+                    size: CMenuStyles.iconSize,
+                    color: textColor,
+                  ),
+                  child: const Icon(CIcons.launch),
+                ),
+              ],
             ],
           ),
         ),
@@ -286,8 +372,9 @@ class _CMenuSelectableItemWidgetState
       if (_isHovered) {
         bgColor = CMenuStyles.hoverColor(widget.tokens);
       } else if (isSelected) {
-        bgColor = CMenuStyles.selectedColor(widget.tokens)
-            .withValues(alpha: 0.4);
+        bgColor = CMenuStyles.selectedColor(
+          widget.tokens,
+        ).withValues(alpha: 0.4);
       }
     }
 
@@ -396,51 +483,108 @@ class _CSubmenuWidgetState extends State<_CSubmenuWidget> {
   bool _isHovered = false;
   OverlayEntry? _overlayEntry;
   final LayerLink _layerLink = LayerLink();
+  int _transitionVersion = 0;
+
+  void _afterFrame(VoidCallback action) {
+    if (!mounted) return;
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (mounted) action();
+    });
+    SchedulerBinding.instance.scheduleFrame();
+  }
+
+  void _setHovered(bool value) {
+    if (_isHovered == value) return;
+    _afterFrame(() {
+      if (mounted && _isHovered != value) {
+        setState(() => _isHovered = value);
+      }
+    });
+  }
 
   void _showSubmenu() {
-    if (_overlayEntry != null || widget.submenu.disabled) return;
+    if (_overlayEntry != null || widget.submenu.disabled || !mounted) return;
+    final version = ++_transitionVersion;
 
-    _overlayEntry = OverlayEntry(
-      builder: (context) {
-        return Positioned(
-          width: 200,
-          child: CompositedTransformFollower(
-            link: _layerLink,
-            showWhenUnlinked: false,
-            offset: const Offset(196, 0),
-            child: MouseRegion(
-              onEnter: (_) => setState(() => _isHovered = true),
-              onExit: (_) => _hideSubmenu(),
-              child: CMenu(
-                props: CMenuProps(
-                  items: widget.submenu.items,
-                  size: widget.size,
-                  onSelect: (val) {
-                    _hideSubmenu();
-                    widget.onChildSelect(val);
-                  },
+    _afterFrame(() {
+      if (!mounted || version != _transitionVersion || _overlayEntry != null) {
+        return;
+      }
+      final entry = OverlayEntry(
+        builder: (context) {
+          return Positioned(
+            width: 200,
+            child: CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              offset: const Offset(196, 0),
+              child: Material(
+                type: MaterialType.transparency,
+                child: DefaultTextStyle(
+                  style: TextStyle(
+                    color: CMenuStyles.textPrimaryColor(widget.tokens),
+                    fontSize: CMenuStyles.fontSize(widget.size),
+                  ),
+                  child: MouseRegion(
+                    onEnter: (_) {
+                      _transitionVersion++;
+                      _setHovered(true);
+                    },
+                    onExit: (_) =>
+                        _scheduleHide(const Duration(milliseconds: 100)),
+                    child: CMenu(
+                      props: CMenuProps(
+                        items: widget.submenu.items,
+                        size: widget.size,
+                        onSelect: (val) {
+                          _hideSubmenu();
+                          widget.onChildSelect(val);
+                        },
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      },
-    );
-
-    Overlay.of(context).insert(_overlayEntry!);
+          );
+        },
+      );
+      _overlayEntry = entry;
+      Overlay.of(context).insert(entry);
+    });
   }
 
   void _hideSubmenu() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-    if (mounted) {
-      setState(() => _isHovered = false);
-    }
+    final version = ++_transitionVersion;
+    _afterFrame(() {
+      if (!mounted || version != _transitionVersion) return;
+      final entry = _overlayEntry;
+      _overlayEntry = null;
+      if (entry != null && entry.mounted) {
+        entry.remove();
+      }
+      if (_isHovered) {
+        setState(() => _isHovered = false);
+      }
+    });
+  }
+
+  void _scheduleHide(Duration delay) {
+    final version = ++_transitionVersion;
+    Future.delayed(delay, () {
+      if (!mounted || version != _transitionVersion) return;
+      _hideSubmenu();
+    });
   }
 
   @override
   void dispose() {
-    _overlayEntry?.remove();
+    _transitionVersion++;
+    final entry = _overlayEntry;
+    _overlayEntry = null;
+    if (entry != null && entry.mounted) {
+      entry.remove();
+    }
     super.dispose();
   }
 
@@ -464,23 +608,15 @@ class _CSubmenuWidgetState extends State<_CSubmenuWidget> {
       child: MouseRegion(
         onEnter: (_) {
           if (!isDisabled) {
-            setState(() => _isHovered = true);
+            _setHovered(true);
             _showSubmenu();
           }
         },
         onExit: (_) {
-          if (isDisabled) {
-            return;
+          if (!isDisabled) {
+            _setHovered(false);
+            _scheduleHide(const Duration(milliseconds: 100));
           }
-          // Clear the hover state before scheduling the delayed hide so the
-          // submenu reliably closes once the pointer leaves the entry.
-          setState(() => _isHovered = false);
-          // Delay slightly to give time to enter overlay
-          Future.delayed(const Duration(milliseconds: 100), () {
-            if (mounted && !_isHovered) {
-              _hideSubmenu();
-            }
-          });
         },
         cursor: isDisabled
             ? SystemMouseCursors.forbidden
