@@ -5,11 +5,48 @@ import 'workspace_collections_config.dart';
 
 /// Builds the context menus used by the workspace collections tree.
 abstract final class WorkspaceMenuProps {
+  static const _addOptionIcons = <String, IconData>{
+    'Ask AI': CIcons.magicWand,
+    'HTTP': CIcons.api,
+    'GraphQL': CIcons.dataStructured,
+    'AI': CIcons.machineLearningModel,
+    'MCP': CIcons.connect,
+    'gRPC': CIcons.connectionSignal,
+    'WebSocket': CIcons.flowStream,
+    'Socket.IO': CIcons.flowConnection,
+    'MQTT': CIcons.flowData,
+    'Data': CIcons.dataSet,
+    'Kafka': CIcons.flowStreamReference,
+    'Collection': CIcons.folder,
+    'Environment': CIcons.settings,
+    'Document': CIcons.document,
+    'Spec': CIcons.code,
+    'Mock': CIcons.modelAlt,
+    'Mock Server': CIcons.dataBase,
+    'Monitor': CIcons.chartLine,
+    'Webhook': CIcons.events,
+    'Flow': CIcons.flow,
+    'Dataset': CIcons.dataTable,
+    'AI Toolset': CIcons.toolBox,
+  };
+
+  static const _addDividerBefore = <String>{'HTTP', 'Collection'};
+
+  static const _addShortcuts = <String, String>{'Ask AI': 'Ctrl+Alt+P'};
+
   static CMenuProps add({required VoidCallback onAddRequest}) {
     return _menu(
       [
         for (final option in WorkspaceCollectionsConfig.addOptions)
-          if (option != 'Search...') CMenuItem(label: option, value: option),
+          if (option != 'Search...') ...[
+            if (_addDividerBefore.contains(option)) const CMenuDivider(),
+            CMenuItem(
+              label: option,
+              value: option,
+              shortcut: _addShortcuts[option],
+              icon: Icon(_addOptionIcons[option] ?? CIcons.api),
+            ),
+          ],
       ],
       onSelect: (value) {
         if (WorkspaceCollectionsConfig.requestTypes.contains(value)) {
