@@ -14,6 +14,8 @@ class ServicesTreeView extends StatelessWidget {
   final String filter;
   final ValueChanged<CTreeViewNode> onNodeActivate;
 
+  String _idFor(String branch) => branch.toLowerCase().replaceAll(' ', '-');
+
   @override
   Widget build(BuildContext context) {
     final branches = WorkspaceCollectionsConfig.serviceBranches
@@ -25,13 +27,18 @@ class ServicesTreeView extends StatelessWidget {
     final nodes = <CTreeViewNode>[
       for (final branch in branches)
         CTreeViewNode(
-          id: 'service:${branch.toLowerCase().replaceAll(' ', '-')}',
+          id: 'service:${_idFor(branch)}',
           label: branch,
+          icon: Icon(
+            WorkspaceCollectionsConfig.branchIcon(_idFor(branch)),
+            size: 16,
+          ),
         ),
       if (branches.isEmpty)
-        const CTreeViewNode(
+        CTreeViewNode(
           id: 'services-empty',
           label: 'No services found',
+          icon: const Icon(CIcons.folder, size: 16),
           disabled: true,
         ),
     ];
@@ -42,6 +49,7 @@ class ServicesTreeView extends StatelessWidget {
           size: CTreeViewSize.sm,
           label: 'Workspace services',
           selectionMode: CTreeViewSelectionMode.none,
+          disclosurePosition: CTreeViewDisclosurePosition.trailing,
           nodes: nodes,
           onNodeActivate: onNodeActivate,
         ),
