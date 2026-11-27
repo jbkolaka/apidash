@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/carbon.dart' hide Theme;
+import '../widgets/work_space_ai_shell.dart';
 import '../widgets/work_space_collections_panel.dart';
 import '../widgets/work_space_config_tabs.dart';
 import '../widgets/work_space_header.dart';
@@ -31,8 +32,17 @@ class _WorkSpaceState extends State<WorkSpace> {
   int _activeTabIndex = 0;
   String? _selectedEnvironment;
   bool _isLoading = false;
+  bool _isCollectionsVisible = true;
+  bool _isResponseVisible = true;
+  bool _isAiShellVisible = false;
+  bool _isAiShellMaximized = false;
+  double _aiShellWidth = 380.0;
+  double _collectionWidth = 320.0;
 
-  static const _collectionWidth = 320.0;
+  static const _minCollectionWidth = 280.0;
+  static const _maxCollectionWidth = 520.0;
+  static const _minWorkbenchWidth = 320.0;
+  static const _minAiShellWidth = 300.0;
 
   WorkspaceRequest? get _activeRequest =>
       _openTabs.isNotEmpty && _activeTabIndex < _openTabs.length
@@ -67,27 +77,124 @@ class _WorkSpaceState extends State<WorkSpace> {
             requestName: _activeRequest?.name ?? 'Workbench',
           ),
           Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(
-                  width: _collectionWidth,
-                  child: WorkSpaceCollectionsPanel(
-                    collections: _collections,
-                    environments: _environments,
-                    onOpenRequest: _openRequest,
-                    onAddRequest: _addNewTab,
-                    onEnvironmentSelected: _selectEnvironment,
-                  ),
-                ),
-                Expanded(child: _buildWorkbench(context)),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) =>
+                  _buildWorkspaceLayout(context, constraints.maxWidth),
             ),
           ),
-          WorkSpaceStatusBar(environment: _selectedEnvironment, port: _port),
+          WorkSpaceStatusBar(
+            environment: _selectedEnvironment,
+            port: _port,
+            isCollectionsVisible: _isCollectionsVisible,
+            onToggleCollections: _toggleCollections,
+            isResponseVisible: _isResponseVisible,
+            onToggleResponse: _toggleResponse,
+            isAiShellVisible: _isAiShellVisible,
+            onToggleAiShell: _toggleAiShell,
+          ),
         ],
       ),
     );
+  }
+
+  Widget _buildWorkspaceLayout(BuildContext context, double availableWidth) {
+    final showCollections = _isCollectionsVisible && !_isAiShellMaximized;
+    final showAiShell = _isAiShellVisible && !_isAiShellMaximized;
+    final collectionHandleWidth = showCollections
+        ? CResizeHandleStyles.hitThickness
+        : 0.0;
+    final aiHandleWidth = showAiShell ? CResizeHandleStyles.hitThickness : 0.0;
+    final maxAiShellWidth =
+        availableWidth -
+        (showCollections ? _collectionWidth : 0.0) -
+        collectionHandleWidth -
+        _minWorkbenchWidth;
+    final shellWidth = _clampAiShellWidth(_aiShellWidth, maxAiShellWidth);
+    final maxCollectionWidth =
+        availableWidth -
+        _minWorkbenchWidth -
+        collectionHandleWidth -
+        (showAiShell ? aiHandleWidth + shellWidth : 0.0);
+    final collectionsWidth = _clampCollectionWidth(
+      _collectionWidth,
+      maxCollectionWidth,
+    );
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (showCollections)
+          SizedBox(
+            width: collectionsWidth,
+            child: WorkSpaceCollectionsPanel(
+              collections: _collections,
+              environments: _environments,
+              onOpenRequest: _openRequest,
+              onAddRequest: _addNewTab,
+              onEnvironmentSelected: _selectEnvironment,
+            ),
+          ),
+        if (showCollections)
+          CResizeHandle(
+            key: const Key('workspace-collections-resize-handle'),
+            direction: CResizeHandleDirection.horizontal,
+            semanticLabel: 'Resize collections panel',
+            onDrag: (delta) {
+              setState(() {
+                _collectionWidth = _clampCollectionWidth(
+                  collectionsWidth + delta,
+                  maxCollectionWidth,
+                );
+              });
+            },
+          ),
+        if (!_isAiShellMaximized) Expanded(child: _buildWorkbench(context)),
+        if (showAiShell) ...[
+          CResizeHandle(
+            key: const Key('workspace-ai-shell-resize-handle'),
+            direction: CResizeHandleDirection.horizontal,
+            semanticLabel: 'Resize AI shell',
+            onDrag: (delta) {
+              setState(() {
+                _aiShellWidth = _clampAiShellWidth(
+                  shellWidth - delta,
+                  maxAiShellWidth,
+                );
+              });
+            },
+          ),
+          SizedBox(width: shellWidth, child: _buildAiShell()),
+        ],
+        if (_isAiShellVisible && _isAiShellMaximized)
+          Expanded(child: _buildAiShell()),
+      ],
+    );
+  }
+
+  Widget _buildAiShell() {
+    return WorkSpaceAiShell(
+      isMaximized: _isAiShellMaximized,
+      onClose: _toggleAiShell,
+      onToggleMaximize: () =>
+          setState(() => _isAiShellMaximized = !_isAiShellMaximized),
+    );
+  }
+
+  double _clampCollectionWidth(double value, double maxWidth) {
+    final upperBound = maxWidth < _maxCollectionWidth
+        ? maxWidth
+        : _maxCollectionWidth;
+    if (upperBound < _minCollectionWidth) return _minCollectionWidth;
+    if (value < _minCollectionWidth) return _minCollectionWidth;
+    if (value > upperBound) return upperBound;
+    return value;
+  }
+
+  double _clampAiShellWidth(double value, double maxWidth) {
+    if (maxWidth < _minAiShellWidth) return _minAiShellWidth;
+    if (value < _minAiShellWidth) return _minAiShellWidth;
+    if (value > maxWidth) return maxWidth;
+    return value;
   }
 
   Widget _buildWorkbench(BuildContext context) {
@@ -145,11 +252,12 @@ class _WorkSpaceState extends State<WorkSpace> {
                   ),
                 ),
               ),
-              Expanded(
-                child: WorkSpaceResponseViewer(
-                  response: _responses[request.id],
+              if (_isResponseVisible)
+                Expanded(
+                  child: WorkSpaceResponseViewer(
+                    response: _responses[request.id],
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -159,6 +267,21 @@ class _WorkSpaceState extends State<WorkSpace> {
 
   void _selectEnvironment(String environment) {
     setState(() => _selectedEnvironment = environment);
+  }
+
+  void _toggleCollections() {
+    setState(() => _isCollectionsVisible = !_isCollectionsVisible);
+  }
+
+  void _toggleResponse() {
+    setState(() => _isResponseVisible = !_isResponseVisible);
+  }
+
+  void _toggleAiShell() {
+    setState(() {
+      _isAiShellVisible = !_isAiShellVisible;
+      if (!_isAiShellVisible) _isAiShellMaximized = false;
+    });
   }
 
   void _openRequest(WorkspaceRequest request) {
