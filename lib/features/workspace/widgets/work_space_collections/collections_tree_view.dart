@@ -32,6 +32,7 @@ class CollectionsTreeView extends StatelessWidget {
           label: 'Workspace collections',
           selectionMode: CTreeViewSelectionMode.none,
           showActionsOnHover: true,
+          disclosurePosition: CTreeViewDisclosurePosition.trailing,
           nodes: _buildNodes(),
           onNodeActivate: onNodeActivate,
         ),
@@ -41,6 +42,10 @@ class CollectionsTreeView extends StatelessWidget {
 
   bool _matches(String value) =>
       filter.isEmpty || value.toLowerCase().contains(filter);
+
+  Icon _branchIcon(String id) {
+    return Icon(WorkspaceCollectionsConfig.branchIcon(id), size: 16);
+  }
 
   List<CTreeViewNode> _buildNodes() {
     final visibleCollections = collections
@@ -58,13 +63,14 @@ class CollectionsTreeView extends StatelessWidget {
       CTreeViewNode(
         id: 'section:collections',
         label: 'Collections',
-        icon: const Icon(CIcons.folder, size: 16),
+        icon: _branchIcon('collections'),
         expandedByDefault: true,
         children: _buildCollectionNodes(visibleCollections),
       ),
       CTreeViewNode(
         id: 'section:environments',
         label: 'Environments',
+        icon: _branchIcon('environments'),
         children: _buildEnvironmentNodes(visibleEnvironments),
       ),
       for (final section in WorkspaceCollectionsConfig.resourceSections)
@@ -80,6 +86,7 @@ class CollectionsTreeView extends StatelessWidget {
         CTreeViewNode(
           id: 'collection:$index',
           label: visibleCollections[index].name,
+          icon: _branchIcon('collections'),
           actions: buildActions('collection:$index'),
           expandedByDefault: true,
           children: [
@@ -96,6 +103,7 @@ class CollectionsTreeView extends StatelessWidget {
         CTreeViewNode(
           id: 'collections-empty',
           label: 'No collections found',
+          icon: _branchIcon('collections'),
           actions: buildActions('collections-empty'),
           disabled: true,
         ),
@@ -110,13 +118,14 @@ class CollectionsTreeView extends StatelessWidget {
         CTreeViewNode(
           id: 'environment:${environment.name}',
           label: environment.name,
-          icon: const Icon(CIcons.globe, size: 16),
+          icon: _branchIcon('environments'),
           actions: buildActions('environment:${environment.name}'),
         ),
       if (visibleEnvironments.isEmpty)
         CTreeViewNode(
           id: 'environments-empty',
           label: 'No environments found',
+          icon: _branchIcon('environments'),
           actions: buildActions('environments-empty'),
           disabled: true,
         ),
@@ -135,10 +144,12 @@ class CollectionsTreeView extends StatelessWidget {
     return CTreeViewNode(
       id: 'section:$sectionId',
       label: section,
+      icon: _branchIcon(sectionId),
       children: [
         CTreeViewNode(
           id: childId,
           label: 'No $section found',
+          icon: _branchIcon(sectionId),
           actions: _resourceActions(childId),
           disabled: true,
         ),
