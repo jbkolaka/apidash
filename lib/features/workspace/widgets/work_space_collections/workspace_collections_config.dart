@@ -1,11 +1,11 @@
 /// Static data used by the workspace collections panel.
 abstract final class WorkspaceCollectionsConfig {
   static const serviceBranches = [
-    'MOCK SERVERS',
-    'MONITORS',
-    'WEBHOOKS',
-    'INSIGHTS',
-    'DEPLOYED FLOWS',
+    'Mock servers',
+    'Monitors',
+    'Webhooks',
+    'Insights',
+    'Deployed flows',
   ];
 
   static const requestTypes = <String>{
