@@ -81,6 +81,77 @@ void main() {
     await gesture.removePointer();
   });
 
+  testWidgets('CTreeView can place the disclosure at the trailing end', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: CTreeView(
+            props: CTreeViewProps(
+              selectionMode: CTreeViewSelectionMode.none,
+              disclosurePosition: CTreeViewDisclosurePosition.trailing,
+              nodes: [
+                CTreeViewNode(
+                  id: 'branch',
+                  label: 'Branch',
+                  icon: const Icon(CIcons.folder),
+                  actions: const [
+                    CTreeViewAction(
+                      label: 'More options',
+                      icon: Icon(CIcons.overflowMenuVertical),
+                    ),
+                  ],
+                  children: const [CTreeViewNode(id: 'leaf', label: 'Leaf')],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final caret = find.byIcon(CIcons.chevronRight);
+    final action = find.byIcon(CIcons.overflowMenuVertical);
+
+    expect(caret, findsOneWidget);
+    expect(
+      tester.getCenter(caret).dx,
+      greaterThan(tester.getCenter(action).dx),
+    );
+    expect(
+      tester.getCenter(caret).dx,
+      greaterThan(tester.getCenter(find.text('Branch')).dx),
+    );
+  });
+
+  testWidgets('CTreeView keeps the disclosure leading by default', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: CTreeView(
+            props: CTreeViewProps(
+              nodes: [
+                CTreeViewNode(
+                  id: 'branch',
+                  label: 'Branch',
+                  children: [CTreeViewNode(id: 'leaf', label: 'Leaf')],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(
+      tester.getCenter(find.byIcon(CIcons.chevronRight)).dx,
+      lessThan(tester.getCenter(find.text('Branch')).dx),
+    );
+  });
+
   testWidgets('CTreeView has no outer border', (tester) async {
     await tester.pumpWidget(
       const MaterialApp(
