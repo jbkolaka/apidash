@@ -152,7 +152,11 @@ abstract final class WorkspaceMenuProps {
     return _menu(
       [
         const CMenuItem(label: 'Add request', value: 'add-request'),
-        const CMenuItem(label: 'Add folder', value: 'add-folder'),
+        const CMenuItem(
+          label: 'Add folder',
+          value: 'add-folder',
+          icon: Icon(CIcons.folderAdd),
+        ),
         const CMenuItem(label: 'Run', value: 'run'),
         const CMenuItem(label: 'Share', value: 'share'),
         const CMenuItem(label: 'Copy link', value: 'copy-link'),
