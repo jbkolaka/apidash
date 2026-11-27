@@ -280,11 +280,13 @@ Hive boxes:
 - Core theming lives in `lib/core/theme/`. `lib/app.dart` is the only app-level `MaterialApp` theme owner: `AppTheme.whiteTheme` for light and `AppTheme.gray100Theme` for dark, exposed through `AppThemeScope`.
 - Read tokens with `context.tokens`; do not add hardcoded colors or a parallel `ThemeData` for app surfaces.
 - Carbon-style components live in `lib/core/components/` and resolve colors from `AppThemeTokens`. Prefer them over raw Material widgets when an equivalent exists (`CButton`, `CTextField`, `CModal`/`showCModal`).
+- Most Carbon icons come from `CIcons`; icons newer than the bundled font (for example Carbon `<AiAgent />`) are SVG-backed widgets under `lib/core/components/icon/` and must still take colors from `AppThemeTokens`.
+- The workspace bottom status bar toggles the left collections panel, bottom response pane, and right AI shell. The AI shell is a static Zed-style dock preview with a `CResizeHandle` and maximize/close layout actions; keep it in the workspace row rather than as an overlay, and do not read Hive-backed providers or run AI actions from it in the new app root.
 - Desktop uses `Dashboard` with a navigation rail and `IndexedStack`.
 - Mobile uses `MobileDashboard`, `PageBranch`, bottom navigation, and mobile-specific request/response pages.
 - `HomePage` switches between `DashboardSplitView` and mobile `RequestResponsePage` using `context.isMediumWindow`.
 - Reusable design primitives belong in `packages/apidash_design_system`.
-- Draggable panel resizing uses `CResizeHandle` in `lib/core/components/resize_handle/`; keep panel sizes in local widget state with clamped min/max bounds.
+- Draggable panel resizing uses `CResizeHandle` in `lib/core/components/resize_handle/`; its visible divider line is 1px while the hit area stays 12px. Workspace collections, shell navigation, and AI dock widths stay in local widget state with clamped min/max bounds.
 - Feature widgets belong near their feature under `lib/screens/` or in `lib/widgets/` when they are truly reusable.
 - Preserve desktop and mobile behavior unless the task is explicitly platform-scoped.
 
