@@ -1,7 +1,9 @@
 import 'package:apidash/core/carbon.dart';
 import 'package:apidash/features/workspace/screen/work_space.dart';
+import 'package:apidash/features/workspace/widgets/work_space_ai_shell.dart';
 import 'package:apidash/features/workspace/widgets/work_space_collections_panel.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -50,7 +52,7 @@ void main() {
     expect(after, greaterThan(before));
   });
 
-  testWidgets('workspace panels use a fixed layout', (tester) async {
+  testWidgets('workspace collections panel can be resized', (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() {
@@ -58,9 +60,21 @@ void main() {
       tester.view.resetDevicePixelRatio();
     });
 
-    await tester.pumpWidget(const MaterialApp(home: WorkSpace()));
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: WorkSpace())),
+    );
 
-    expect(find.byType(CResizeHandle), findsNothing);
+    final handle = find.byKey(const Key('workspace-collections-resize-handle'));
+    expect(handle, findsOneWidget);
+    expect(
+      find.descendant(
+        of: handle,
+        matching: find.byWidgetPredicate(
+          (widget) => widget is Container && widget.constraints?.maxWidth == 1,
+        ),
+      ),
+      findsOneWidget,
+    );
 
     double panelWidth() => tester
         .widget<SizedBox>(
@@ -76,12 +90,38 @@ void main() {
     final before = panelWidth();
     expect(before, greaterThanOrEqualTo(300));
 
-    await tester.drag(
-      find.byType(WorkSpaceCollectionsPanel),
-      const Offset(60, 0),
-    );
+    await tester.drag(handle, const Offset(60, 0));
     await tester.pump();
 
-    expect(panelWidth(), before);
+    expect(panelWidth(), greaterThan(before));
+  });
+
+  testWidgets('right AI shell can be resized', (tester) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(() {
+      tester.view.resetPhysicalSize();
+      tester.view.resetDevicePixelRatio();
+    });
+
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: WorkSpace())),
+    );
+
+    await tester.tap(find.byTooltip('AI agent'));
+    await tester.pump();
+
+    final handle = find.byKey(const Key('workspace-ai-shell-resize-handle'));
+    final before = tester.getRect(find.byType(WorkSpaceAiShell)).width;
+
+    await tester.drag(handle, const Offset(-60, 0));
+    await tester.pump();
+
+    final after = tester.getRect(find.byType(WorkSpaceAiShell)).width;
+    expect(after, greaterThan(before));
+    expect(
+      tester.getRect(find.byType(WorkSpaceAiShell)).right,
+      closeTo(1400, 1),
+    );
   });
 }
