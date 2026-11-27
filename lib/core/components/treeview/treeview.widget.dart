@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/variables.dart' hide Theme, Radius;
+import '../icon/index.dart';
 
 import 'treeview.props.dart';
 import 'treeview.styles.dart';
@@ -105,12 +106,18 @@ class _CTreeViewState extends State<CTreeView> {
     final hovered = _hoveredId == node.id;
     final rowHeight = CTreeViewStyles.rowHeight(widget.props.size);
 
+    final disclosure = hasChildren
+        ? _buildDisclosure(node, expanded, tokens)
+        : const SizedBox(width: CTreeViewStyles.disclosureSize);
+    final trailingDisclosure =
+        widget.props.disclosurePosition == CTreeViewDisclosurePosition.trailing;
+
     final rowChildren = <Widget>[
       SizedBox(width: depth * CTreeViewStyles.rowIndent),
-      if (hasChildren)
-        _buildDisclosure(node, expanded, tokens)
+      if (trailingDisclosure)
+        const SizedBox(width: CTreeViewStyles.disclosureSize)
       else
-        const SizedBox(width: CTreeViewStyles.disclosureSize),
+        disclosure,
       if (widget.props.selectionMode == CTreeViewSelectionMode.multiple)
         _buildCheckbox(node, selected, tokens),
       if (node.icon != null) ...[
@@ -155,6 +162,7 @@ class _CTreeViewState extends State<CTreeView> {
                 )
               : null,
         ),
+      if (trailingDisclosure) disclosure,
     ];
 
     final row = Semantics(
@@ -226,7 +234,7 @@ class _CTreeViewState extends State<CTreeView> {
           width: CTreeViewStyles.disclosureSize,
           height: CTreeViewStyles.rowHeight(widget.props.size),
           child: Icon(
-            expanded ? Icons.expand_more : Icons.chevron_right,
+            expanded ? CIcons.chevronDown : CIcons.chevronRight,
             size: CTreeViewStyles.iconSize,
             color: node.disabled
                 ? CTreeViewStyles.textDisabled(tokens)
