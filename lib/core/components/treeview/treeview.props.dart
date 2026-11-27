@@ -3,6 +3,9 @@ import 'package:flutter/widgets.dart';
 /// Node selection behavior for [CTreeView].
 enum CTreeViewSelectionMode { none, single, multiple }
 
+/// Where the expand/collapse caret is placed on a branch row.
+enum CTreeViewDisclosurePosition { leading, trailing }
+
 /// A trailing action rendered on a [CTreeViewNode] row.
 class CTreeViewAction {
   const CTreeViewAction({
@@ -72,6 +75,7 @@ class CTreeViewProps {
     this.size = CTreeViewSize.md,
     this.maxHeight,
     this.showActionsOnHover = false,
+    this.disclosurePosition = CTreeViewDisclosurePosition.leading,
     this.onSelectionChanged,
     this.onActiveChanged,
     this.onExpandedChanged,
@@ -108,6 +112,13 @@ class CTreeViewProps {
 
   /// Renders [CTreeViewNode.actions] only while the row is hovered.
   final bool showActionsOnHover;
+
+  /// Placement of the branch expand/collapse caret.
+  ///
+  /// Defaults to [CTreeViewDisclosurePosition.leading], matching Carbon's
+  /// tree view anatomy. Use [CTreeViewDisclosurePosition.trailing] when row
+  /// icons need the leading edge and actions belong before the caret.
+  final CTreeViewDisclosurePosition disclosurePosition;
 
   /// Called when the set of selected node IDs changes.
   final ValueChanged<Set<String>>? onSelectionChanged;
