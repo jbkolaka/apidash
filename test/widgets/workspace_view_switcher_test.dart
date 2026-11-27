@@ -81,11 +81,11 @@ void main() {
 
     expect(find.text('Core Services API'), findsNothing);
     for (final branch in [
-      'MOCK SERVERS',
-      'MONITORS',
-      'WEBHOOKS',
-      'INSIGHTS',
-      'DEPLOYED FLOWS',
+      'Mock servers',
+      'Monitors',
+      'Webhooks',
+      'Insights',
+      'Deployed flows',
     ]) {
       expect(find.text(branch), findsOneWidget, reason: branch);
     }
