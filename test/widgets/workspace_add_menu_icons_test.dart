@@ -100,4 +100,18 @@ void main() {
       );
     }
   });
+
+  test('row menu uses the Carbon add-folder icon', () {
+    final props = WorkspaceMenuProps.row(
+      onAddRequest: () {},
+      onShowMenuSpecChart: () {},
+    );
+
+    final item = props.items.whereType<CMenuItem>().firstWhere(
+      (entry) => entry.label == 'Add folder',
+    );
+
+    expect(item.icon, isA<Icon>());
+    expect((item.icon! as Icon).icon, CIcons.folderAdd);
+  });
 }
